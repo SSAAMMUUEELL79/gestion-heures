@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Heures</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="theme-color" content="#3498db">
+</head>
+<body>
+    <div id="app">
+        <!-- Page de connexion -->
+        <div id="loginPage" class="page active">
+            <h1>Gestion des Heures</h1>
+            <div class="card">
+                <button id="newEmployeeBtn" class="primary-button">Nouvel Employé</button>
+                <button id="loadEmployeeBtn" class="secondary-button">Charger Employé</button>
+            </div>
+        </div>
+
+        <!-- Page d'inscription -->
+        <div id="registerPage" class="page">
+            <h2>Informations de l'employé</h2>
+            <form id="registerForm" class="card">
+                <div class="form-section">
+                    <h3>INFORMATIONS PERSONNELLES</h3>
+                    <div class="form-group">
+                        <label>Nom *</label>
+                        <input type="text" id="nom" required autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label>Prénom *</label>
+                        <input type="text" id="prenom" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Matricule *</label>
+                        <input type="text" id="matricule" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>TYPE DE CONTRAT</h3>
+                    <div class="form-group">
+                        <label>Nature du contrat *</label>
+                        <select id="typeContrat" required>
+                            <option value="CDI">CDI</option>
+                            <option value="CDD">CDD</option>
+                            <option value="Intérim">Intérim</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Temps de travail *</label>
+                        <select id="typeTemps" required>
+                            <option value="Temps plein">Temps plein</option>
+                            <option value="Temps partiel">Temps partiel</option>
+                            <option value="Mi-temps">Mi-temps</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>HORAIRES ET RÉMUNÉRATION</h3>
+                    <div class="form-group">
+                        <label>Heures hebdomadaires *</label>
+                        <input type="number" id="heuresHebdo" value="38" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Taux horaire (€/h) *</label>
+                        <input type="number" id="tauxHoraire" step="0.0001" min="0" max="999.9999" required>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="primary-button">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Page de saisie des heures -->
+        <div id="timesheetPage" class="page">
+            <div class="employee-info">
+                <h2 id="employeeHeader"></h2>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="daily">Saisie journalière</button>
+                <button class="tab-btn" data-tab="monthly">Bilan mensuel</button>
+            </div>
+
+            <div id="dailyTab" class="tab-content active">
+                <div class="card">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="workDate">
+                    </div>
+
+                    <div class="time-section">
+                        <h3>Matin</h3>
+                        <div class="time-inputs">
+                            <div class="form-group">
+                                <label>Début</label>
+                                <input type="time" id="startMorning">
+                            </div>
+                            <div class="form-group">
+                                <label>Fin</label>
+                                <input type="time" id="endMorning">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="time-section">
+                        <h3>Après-midi</h3>
+                        <div class="time-inputs">
+                            <div class="form-group">
+                                <label>Début</label>
+                                <input type="time" id="startAfternoon">
+                            </div>
+                            <div class="form-group">
+                                <label>Fin</label>
+                                <input type="time" id="endAfternoon">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="absence-section">
+                        <h3>Type d'absence</h3>
+                        <div class="checkbox-group">
+                            <label class="checkbox">
+                                <input type="checkbox" id="absence">
+                                <span>Absence</span>
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" id="holiday">
+                                <span>Jour Férié</span>
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" id="vacation">
+                                <span>Congé</span>
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" id="economicUnemployment">
+                                <span>Chômage Économique</span>
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" id="temporaryUnemployment">
+                                <span>Chômage Temporaire</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button id="saveDay" class="primary-button">Enregistrer la journée</button>
+                </div>
+            </div>
+
+            <div id="monthlyTab" class="tab-content">
+                <div class="card">
+                    <div class="form-group">
+                        <label>Mois</label>
+                        <select id="month">
+                            <option value="1">Janvier</option>
+                            <option value="2">Février</option>
+                            <option value="3">Mars</option>
+                            <option value="4">Avril</option>
+                            <option value="5">Mai</option>
+                            <option value="6">Juin</option>
+                            <option value="7">Juillet</option>
+                            <option value="8">Août</option>
+                            <option value="9">Septembre</option>
+                            <option value="10">Octobre</option>
+                            <option value="11">Novembre</option>
+                            <option value="12">Décembre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Année</label>
+                        <input type="number" id="year">
+                    </div>
+                    <button id="calculateBtn" class="primary-button">Calculer</button>
+
+                    <div id="results" class="results">
+                        <!-- Les résultats seront insérés ici via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
