@@ -129,32 +129,14 @@
 
                     <div class="absence-section">
                         <h3>Type d'absence</h3>
-                        <div class="radio-group">
-                            <div class="radio">
-                                <input type="radio" id="noAbsence" name="absenceType" value="none" checked>
-                                <label for="noAbsence">Pas d'absence</label>
-                            </div>
-                            <div class="radio">
-                                <input type="radio" id="absence" name="absenceType" value="absence">
-                                <label for="absence">Absence</label>
-                            </div>
-                            <div class="radio">
-                                <input type="radio" id="holiday" name="absenceType" value="holiday">
-                                <label for="holiday">Jour Férié</label>
-                            </div>
-                            <div class="radio">
-                                <input type="radio" id="vacation" name="absenceType" value="vacation">
-                                <label for="vacation">Congé</label>
-                            </div>
-                            <div class="radio">
-                                <input type="radio" id="economicUnemployment" name="absenceType" value="economic">
-                                <label for="economicUnemployment">Chômage Économique</label>
-                            </div>
-                            <div class="radio">
-                                <input type="radio" id="temporaryUnemployment" name="absenceType" value="temporary">
-                                <label for="temporaryUnemployment">Chômage Temporaire</label>
-                            </div>
-                        </div>
+                        <select id="absenceType" class="form-control">
+                            <option value="none">Pas d'absence</option>
+                            <option value="absence">Absence</option>
+                            <option value="holiday">Jour Férié</option>
+                            <option value="vacation">Congé</option>
+                            <option value="economic">Chômage Économique</option>
+                            <option value="temporary">Chômage Temporaire</option>
+                        </select>
                     </div>
 
                     <button id="saveDay" class="primary-button">Enregistrer la journée</button>
