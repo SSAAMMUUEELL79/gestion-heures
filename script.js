@@ -115,6 +115,7 @@ class App {
             e.preventDefault();
             this.registerEmployee();
         });
+        document.getElementById('deleteEmployeeBtn')?.addEventListener('click', () => this.deleteEmployee());
 
         // Onglets
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -128,6 +129,14 @@ class App {
 
         document.getElementById('saveDay')?.addEventListener('click', () => this.saveWorkday());
         document.getElementById('calculateBtn')?.addEventListener('click', () => this.calculateMonthly());
+    }
+
+    deleteEmployee() {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cet employé ? Cette action est irréversible.')) {
+            localStorage.removeItem(`employee_${this.currentEmployee.data.matricule}`);
+            this.currentEmployee = null;
+            this.showLoginPage();
+        }
     }
 
     handleAbsenceTypeChange() {
