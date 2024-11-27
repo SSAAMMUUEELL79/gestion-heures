@@ -123,17 +123,15 @@ class App {
             });
         });
 
-        // Boutons radio d'absence
-        document.querySelectorAll('input[name="absenceType"]').forEach(radio => {
-            radio.addEventListener('change', () => this.handleAbsenceTypeChange());
-        });
+        // Menu déroulant d'absence
+        document.getElementById('absenceType')?.addEventListener('change', () => this.handleAbsenceTypeChange());
 
         document.getElementById('saveDay')?.addEventListener('click', () => this.saveWorkday());
         document.getElementById('calculateBtn')?.addEventListener('click', () => this.calculateMonthly());
     }
 
     handleAbsenceTypeChange() {
-        const selectedType = document.querySelector('input[name="absenceType"]:checked').value;
+        const selectedType = document.getElementById('absenceType').value;
         const timeInputs = ['startMorning', 'endMorning', 'startAfternoon', 'endAfternoon'];
         
         timeInputs.forEach(id => {
@@ -233,7 +231,7 @@ class App {
             return;
         }
 
-        const absenceType = document.querySelector('input[name="absenceType"]:checked')?.value;
+        const absenceType = document.getElementById('absenceType')?.value;
         
         try {
             if (absenceType === 'absence') {
@@ -263,7 +261,7 @@ class App {
             alert('Journée enregistrée avec succès !');
             
             // Réinitialiser le formulaire
-            document.getElementById('noAbsence').checked = true;
+            document.getElementById('absenceType').value = 'none';
             this.handleAbsenceTypeChange();
             ['startMorning', 'endMorning', 'startAfternoon', 'endAfternoon'].forEach(id => {
                 const input = document.getElementById(id);
