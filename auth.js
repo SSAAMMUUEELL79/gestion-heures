@@ -19,6 +19,12 @@ class Auth {
         } else {
             this.logout();
         }
+
+        // Créer un compte par défaut si aucun n'existe
+        if (!localStorage.getItem('userEmail') || !localStorage.getItem('userPassword')) {
+            localStorage.setItem('userEmail', 'admin@example.com');
+            localStorage.setItem('userPassword', 'admin123');
+        }
     }
 
     setupEventListeners() {
@@ -55,8 +61,10 @@ class Auth {
         const password = document.getElementById('password').value;
         const rememberMe = document.getElementById('rememberMe').checked;
 
-        // Vérification des identifiants (à personnaliser)
-        if (this.validateCredentials(email, password)) {
+        const validEmail = localStorage.getItem('userEmail');
+        const validPassword = localStorage.getItem('userPassword');
+
+        if (email === validEmail && password === validPassword) {
             this.isAuthenticated = true;
             this.createAuthToken(rememberMe);
             this.showAuthenticatedUI();
@@ -64,21 +72,6 @@ class Auth {
         } else {
             this.showError('Email ou mot de passe incorrect');
         }
-    }
-
-    validateCredentials(email, password) {
-        // À personnaliser selon vos besoins
-        const validEmail = localStorage.getItem('userEmail');
-        const validPassword = localStorage.getItem('userPassword');
-
-        if (!validEmail || !validPassword) {
-            // Premier accès : créer des identifiants par défaut
-            localStorage.setItem('userEmail', 'admin@example.com');
-            localStorage.setItem('userPassword', 'admin123');
-            return email === 'admin@example.com' && password === 'admin123';
-        }
-
-        return email === validEmail && password === validPassword;
     }
 
     createAuthToken(rememberMe) {
@@ -98,14 +91,17 @@ class Auth {
     }
 
     handleForgotPassword() {
-        const email = document.getElementById('email').value;
-        if (!email) {
-            this.showError('Veuillez entrer votre email');
+        const recoveryEmail = localStorage.getItem('recoveryEmail');
+        if (!recoveryEmail) {
+            this.showError('Aucun email de récupération configuré. Contactez l\'administrateur.');
             return;
         }
 
-        // Simuler l'envoi d'un email de réinitialisation
-        alert(`Un email de réinitialisation a été envoyé à ${email}`);
+        // Simuler l'envoi d'un email
+        const tempPassword = Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('userPassword', tempPassword);
+        
+        alert(`Un nouveau mot de passe temporaire a été envoyé à ${recoveryEmail}\n\nPour cette démo, voici le mot de passe : ${tempPassword}`);
     }
 
     togglePasswordVisibility() {
@@ -115,7 +111,7 @@ class Auth {
     }
 
     showError(message) {
-        alert(message); // À remplacer par une meilleure UI pour les erreurs
+        alert(message);
     }
 
     showAuthenticatedUI() {
@@ -131,7 +127,7 @@ class Auth {
     }
 
     getAutoLogoutTime() {
-        return parseInt(localStorage.getItem('autoLogoutTime')) || 30; // 30 minutes par défaut
+        return parseInt(localStorage.getItem('autoLogoutTime')) || 30;
     }
 
     setupAutoLogout() {
