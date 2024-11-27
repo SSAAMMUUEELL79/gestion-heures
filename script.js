@@ -192,6 +192,9 @@ class EmployeeManager {
     showHomePage() {
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
         document.getElementById('loginPage').classList.add('active');
+        
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('homeBtn').classList.add('active');
     }
 
     showTimesheetPage() {
