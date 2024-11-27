@@ -30,15 +30,15 @@
                 <div class="form-section">
                     <h3>INFORMATIONS PERSONNELLES</h3>
                     <div class="form-group">
-                        <label>Nom *</label>
+                        <label for="nom">Nom *</label>
                         <input type="text" id="nom" required autocomplete="name">
                     </div>
                     <div class="form-group">
-                        <label>Prénom *</label>
+                        <label for="prenom">Prénom *</label>
                         <input type="text" id="prenom" required>
                     </div>
                     <div class="form-group">
-                        <label>Matricule *</label>
+                        <label for="matricule">Matricule *</label>
                         <input type="text" id="matricule" required>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                 <div class="form-section">
                     <h3>TYPE DE CONTRAT</h3>
                     <div class="form-group">
-                        <label>Nature du contrat *</label>
+                        <label for="typeContrat">Nature du contrat *</label>
                         <select id="typeContrat" required>
                             <option value="CDI">CDI</option>
                             <option value="CDD">CDD</option>
@@ -54,7 +54,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Temps de travail *</label>
+                        <label for="typeTemps">Temps de travail *</label>
                         <select id="typeTemps" required>
                             <option value="Temps plein">Temps plein</option>
                             <option value="Temps partiel">Temps partiel</option>
@@ -66,11 +66,11 @@
                 <div class="form-section">
                     <h3>HORAIRES ET RÉMUNÉRATION</h3>
                     <div class="form-group">
-                        <label>Heures hebdomadaires *</label>
+                        <label for="heuresHebdo">Heures hebdomadaires *</label>
                         <input type="number" id="heuresHebdo" value="38" required>
                     </div>
                     <div class="form-group">
-                        <label>Taux horaire (€/h) *</label>
+                        <label for="tauxHoraire">Taux horaire (€/h) *</label>
                         <input type="number" id="tauxHoraire" step="0.0001" min="0" max="999.9999" required>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
             <div id="dailyTab" class="tab-content active">
                 <div class="card">
                     <div class="form-group">
-                        <label>Date</label>
+                        <label for="workDate">Date</label>
                         <input type="date" id="workDate">
                     </div>
 
@@ -103,11 +103,11 @@
                         <h3>Matin</h3>
                         <div class="time-inputs">
                             <div class="form-group">
-                                <label>Début</label>
+                                <label for="startMorning">Début</label>
                                 <input type="time" id="startMorning">
                             </div>
                             <div class="form-group">
-                                <label>Fin</label>
+                                <label for="endMorning">Fin</label>
                                 <input type="time" id="endMorning">
                             </div>
                         </div>
@@ -117,11 +117,11 @@
                         <h3>Après-midi</h3>
                         <div class="time-inputs">
                             <div class="form-group">
-                                <label>Début</label>
+                                <label for="startAfternoon">Début</label>
                                 <input type="time" id="startAfternoon">
                             </div>
                             <div class="form-group">
-                                <label>Fin</label>
+                                <label for="endAfternoon">Fin</label>
                                 <input type="time" id="endAfternoon">
                             </div>
                         </div>
@@ -130,26 +130,26 @@
                     <div class="absence-section">
                         <h3>Type d'absence</h3>
                         <div class="checkbox-group">
-                            <label class="checkbox">
-                                <input type="checkbox" id="absence">
-                                <span>Absence</span>
-                            </label>
-                            <label class="checkbox">
-                                <input type="checkbox" id="holiday">
-                                <span>Jour Férié</span>
-                            </label>
-                            <label class="checkbox">
-                                <input type="checkbox" id="vacation">
-                                <span>Congé</span>
-                            </label>
-                            <label class="checkbox">
-                                <input type="checkbox" id="economicUnemployment">
-                                <span>Chômage Économique</span>
-                            </label>
-                            <label class="checkbox">
-                                <input type="checkbox" id="temporaryUnemployment">
-                                <span>Chômage Temporaire</span>
-                            </label>
+                            <div class="checkbox">
+                                <input type="checkbox" id="absence" name="absence">
+                                <label for="absence">Absence</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="holiday" name="holiday">
+                                <label for="holiday">Jour Férié</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="vacation" name="vacation">
+                                <label for="vacation">Congé</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="economicUnemployment" name="economicUnemployment">
+                                <label for="economicUnemployment">Chômage Économique</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="temporaryUnemployment" name="temporaryUnemployment">
+                                <label for="temporaryUnemployment">Chômage Temporaire</label>
+                            </div>
                         </div>
                     </div>
 
@@ -160,7 +160,7 @@
             <div id="monthlyTab" class="tab-content">
                 <div class="card">
                     <div class="form-group">
-                        <label>Mois</label>
+                        <label for="month">Mois</label>
                         <select id="month">
                             <option value="1">Janvier</option>
                             <option value="2">Février</option>
@@ -177,7 +177,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Année</label>
+                        <label for="year">Année</label>
                         <input type="number" id="year">
                     </div>
                     <button id="calculateBtn" class="primary-button">Calculer</button>
