@@ -1,4 +1,4 @@
-// Gestion des donn�es
+// Gestion des données
 class Employee {
     constructor(data) {
         this.data = data;
@@ -81,6 +81,7 @@ class Employee {
         return morningHours + afternoonHours;
     }
 }
+
 // Application principale
 class App {
     constructor() {
@@ -94,7 +95,7 @@ class App {
             document.getElementById('workDate').value = today;
         }
         
-        // Initialiser l'ann�e courante
+        // Initialiser l'année courante
         const currentYear = new Date().getFullYear();
         if (document.getElementById('year')) {
             document.getElementById('year').value = currentYear;
@@ -103,11 +104,11 @@ class App {
 
     initializeEventListeners() {
         // Boutons de la page de connexion
-        document.getElementById('newEmployeeBtn').addEventListener('click', () => this.showPage('registerPage'));
-        document.getElementById('loadEmployeeBtn').addEventListener('click', () => this.showEmployeeList());
+        document.getElementById('newEmployeeBtn')?.addEventListener('click', () => this.showPage('registerPage'));
+        document.getElementById('loadEmployeeBtn')?.addEventListener('click', () => this.showEmployeeList());
 
         // Formulaire d'inscription
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
+        document.getElementById('registerForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
             this.registerEmployee();
         });
@@ -119,36 +120,40 @@ class App {
             });
         });
 
-        // Cases � cocher d'absence
+        // Cases à cocher d'absence
         const absenceCheckboxes = ['absence', 'holiday', 'vacation', 'economicUnemployment', 'temporaryUnemployment'];
         absenceCheckboxes.forEach(id => {
-            document.getElementById(id).addEventListener('change', () => this.handleAbsenceCheck(id));
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                checkbox.addEventListener('change', () => this.handleAbsenceCheck(id));
+            }
         });
 
         // Bouton de sauvegarde
-        document.getElementById('saveDay').addEventListener('click', () => this.saveWorkday());
+        document.getElementById('saveDay')?.addEventListener('click', () => this.saveWorkday());
 
         // Bouton de calcul
-        document.getElementById('calculateBtn').addEventListener('click', () => this.calculateMonthly());
+        document.getElementById('calculateBtn')?.addEventListener('click', () => this.calculateMonthly());
     }
 
     showPage(pageId) {
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
+        document.getElementById(pageId)?.classList.add('active');
     }
 
     showLoginPage() {
         this.showPage('loginPage');
         const employees = Employee.getAllEmployees();
         if (employees.length === 0) {
-            document.getElementById('loadEmployeeBtn').style.display = 'none';
+            const loadBtn = document.getElementById('loadEmployeeBtn');
+            if (loadBtn) loadBtn.style.display = 'none';
         }
     }
 
     showEmployeeList() {
         const employees = Employee.getAllEmployees();
         if (employees.length === 0) {
-            alert('Aucun employ� enregistr�');
+            alert('Aucun employé enregistré');
             return;
         }
 
@@ -156,7 +161,7 @@ class App {
         dialog.className = 'dialog';
         dialog.innerHTML = `
             <div class="dialog-content">
-                <h3>S�lectionner un employ�</h3>
+                <h3>Sélectionner un employé</h3>
                 <div class="employee-list">
                     ${employees.map(emp => `
                         <button class="employee-item" data-matricule="${emp.matricule}">
@@ -179,13 +184,13 @@ class App {
 
     registerEmployee() {
         const data = {
-            nom: document.getElementById('nom').value,
-            prenom: document.getElementById('prenom').value,
-            matricule: document.getElementById('matricule').value,
-            typeContrat: document.getElementById('typeContrat').value,
-            typeTemps: document.getElementById('typeTemps').value,
-            heuresHebdo: parseFloat(document.getElementById('heuresHebdo').value),
-            tauxHoraire: parseFloat(document.getElementById('tauxHoraire').value)
+            nom: document.getElementById('nom')?.value,
+            prenom: document.getElementById('prenom')?.value,
+            matricule: document.getElementById('matricule')?.value,
+            typeContrat: document.getElementById('typeContrat')?.value,
+            typeTemps: document.getElementById('typeTemps')?.value,
+            heuresHebdo: parseFloat(document.getElementById('heuresHebdo')?.value),
+            tauxHoraire: parseFloat(document.getElementById('tauxHoraire')?.value)
         };
 
         this.currentEmployee = new Employee(data);
@@ -197,62 +202,70 @@ class App {
         this.currentEmployee = Employee.load(matricule);
         if (this.currentEmployee) {
             this.showTimesheetPage();
+        } else {
+            alert('Erreur lors du chargement de l\'employé');
         }
     }
 
     showTimesheetPage() {
         this.showPage('timesheetPage');
-        document.getElementById('employeeHeader').textContent = 
-            `${this.currentEmployee.data.nom} ${this.currentEmployee.data.prenom}`;
+        const header = document.getElementById('employeeHeader');
+        if (header) {
+            header.textContent = `${this.currentEmployee.data.nom} ${this.currentEmployee.data.prenom}`;
+        }
     }
 
-    handleAbsenceCheck(checkboxId) {
-        const isChecked = document.getElementById(checkboxId).checked;
+    handleAbsenceCheck(checkedId) {
+        const checkboxes = ['absence', 'holiday', 'vacation', 'economicUnemployment', 'temporaryUnemployment'];
         const timeInputs = ['startMorning', 'endMorning', 'startAfternoon', 'endAfternoon'];
         
-        // D�sactiver les autres cases � cocher
-        const absenceCheckboxes = ['absence', 'holiday', 'vacation', 'economicUnemployment', 'temporaryUnemployment'];
-        absenceCheckboxes.forEach(id => {
-            if (id !== checkboxId) {
-                document.getElementById(id).disabled = isChecked;
+        checkboxes.forEach(id => {
+            if (id !== checkedId) {
+                const checkbox = document.getElementById(id);
+                if (checkbox) checkbox.checked = false;
             }
         });
 
-        // D�sactiver/activer les champs d'heures
+        const isAnyAbsenceChecked = checkboxes.some(id => document.getElementById(id)?.checked);
+        
         timeInputs.forEach(id => {
-            document.getElementById(id).disabled = isChecked;
+            const input = document.getElementById(id);
+            if (input) {
+                input.disabled = isAnyAbsenceChecked;
+                if (isAnyAbsenceChecked) input.value = '';
+            }
         });
     }
 
     saveWorkday() {
-        const date = document.getElementById('workDate').value;
+        const date = document.getElementById('workDate')?.value;
         
         try {
-            if (document.getElementById('absence').checked) {
+            if (document.getElementById('absence')?.checked) {
                 this.currentEmployee.absences.push(date);
-            } else if (document.getElementById('holiday').checked) {
+            } else if (document.getElementById('holiday')?.checked) {
                 this.currentEmployee.holidays.push(date);
-            } else if (document.getElementById('vacation').checked) {
+            } else if (document.getElementById('vacation')?.checked) {
                 this.currentEmployee.vacations.push(date);
-            } else if (document.getElementById('economicUnemployment').checked) {
+            } else if (document.getElementById('economicUnemployment')?.checked) {
                 this.currentEmployee.economicUnemployment.push(date);
-            } else if (document.getElementById('temporaryUnemployment').checked) {
+            } else if (document.getElementById('temporaryUnemployment')?.checked) {
                 this.currentEmployee.temporaryUnemployment.push(date);
             } else {
                 this.currentEmployee.workHours[date] = {
                     morning: {
-                        start: document.getElementById('startMorning').value,
-                        end: document.getElementById('endMorning').value
+                        start: document.getElementById('startMorning')?.value,
+                        end: document.getElementById('endMorning')?.value
                     },
                     afternoon: {
-                        start: document.getElementById('startAfternoon').value,
-                        end: document.getElementById('endAfternoon').value
+                        start: document.getElementById('startAfternoon')?.value,
+                        end: document.getElementById('endAfternoon')?.value
                     }
                 };
             }
 
             this.currentEmployee.save();
-            alert('Journ�e enregistr�e avec succ�s !');
+            alert('Journée enregistrée avec succès !');
             this.resetForm();
         } catch (error) {
             alert('Erreur lors de l\'enregistrement : ' + error.message);
@@ -261,19 +274,25 @@ class App {
 
     resetForm() {
         ['startMorning', 'endMorning', 'startAfternoon', 'endAfternoon'].forEach(id => {
-            document.getElementById(id).value = '';
-            document.getElementById(id).disabled = false;
+            const input = document.getElementById(id);
+            if (input) {
+                input.value = '';
+                input.disabled = false;
+            }
         });
 
         ['absence', 'holiday', 'vacation', 'economicUnemployment', 'temporaryUnemployment'].forEach(id => {
-            document.getElementById(id).checked = false;
-            document.getElementById(id).disabled = false;
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                checkbox.checked = false;
+                checkbox.disabled = false;
+            }
         });
     }
 
     calculateMonthly() {
-        const month = parseInt(document.getElementById('month').value);
-        const year = parseInt(document.getElementById('year').value);
+        const month = parseInt(document.getElementById('month')?.value);
+        const year = parseInt(document.getElementById('year')?.value);
         
         let totalHours = 0;
         let workDays = 0;
@@ -309,16 +328,18 @@ class App {
         }
 
         const results = document.getElementById('results');
-        results.innerHTML = `
-            <p>Total des heures : ${totalHours.toFixed(2)}h</p>
-            <p>Jours travaill�s : ${workDays}</p>
-            <p>Absences : ${absences}</p>
-            <p>Jours f�ri�s : ${holidays}</p>
-            <p>Cong�s : ${vacations}</p>
-            <p>Ch�mage �conomique : ${economic}</p>
-            <p>Ch�mage temporaire : ${temporary}</p>
-            <p>Salaire brut : ${(totalHours * this.currentEmployee.data.tauxHoraire).toFixed(2)}�</p>
-        `;
+        if (results) {
+            results.innerHTML = `
+                <p>Total des heures : ${totalHours.toFixed(2)}h</p>
+                <p>Jours travaillés : ${workDays}</p>
+                <p>Absences : ${absences}</p>
+                <p>Jours fériés : ${holidays}</p>
+                <p>Congés : ${vacations}</p>
+                <p>Chômage économique : ${economic}</p>
+                <p>Chômage temporaire : ${temporary}</p>
+                <p>Salaire brut : ${(totalHours * this.currentEmployee.data.tauxHoraire).toFixed(2)}€</p>
+            `;
+        }
     }
 
     switchTab(tabId) {
@@ -331,7 +352,7 @@ class App {
     }
 }
 
-// D�marrer l'application
+// Démarrer l'application
 document.addEventListener('DOMContentLoaded', () => {
     new App();
 });
