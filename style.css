@@ -119,6 +119,22 @@ button {
     background-color: #7f8c8d;
 }
 
+.delete-button {
+    background-color: #e74c3c;
+    color: white;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
+}
+
+.employee-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 .tabs {
     display: flex;
     margin-bottom: 20px;
