@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -60,10 +61,20 @@ label {
 
 input, select {
     width: 100%;
-    padding: 8px 12px;
+    padding: 12px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
 }
 
 input:focus, select:focus {
@@ -79,12 +90,13 @@ input:focus, select:focus {
 }
 
 button {
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .primary-button {
@@ -113,10 +125,10 @@ button {
 
 .tab-btn {
     flex: 1;
-    padding: 10px;
+    padding: 12px;
     background: #ecf0f1;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
 }
 
@@ -143,33 +155,49 @@ button {
     gap: 15px;
 }
 
-.checkbox-group {
+.radio-group {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    margin: 15px 0;
 }
 
-.checkbox {
+.radio {
     display: flex;
     align-items: center;
-    gap: 10px;
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: background-color 0.2s;
 }
 
-.checkbox input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+.radio input[type="radio"] {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+}
+
+.radio label {
+    margin: 0;
+    font-size: 16px;
+    flex: 1;
+}
+
+.radio:active {
+    background: #e9ecef;
 }
 
 .results {
     margin-top: 20px;
     padding: 15px;
     background: #f8f9fa;
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 .results p {
     margin-bottom: 10px;
+    font-size: 16px;
 }
 
 .dialog {
@@ -201,11 +229,11 @@ button {
 
 .employee-item {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     text-align: left;
     background: #f8f9fa;
     border: 1px solid #dee2e6;
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 .employee-item:hover {
@@ -219,5 +247,10 @@ button {
 
     .time-inputs {
         grid-template-columns: 1fr;
+    }
+
+    input, select, button {
+        font-size: 16px;
+        padding: 12px;
     }
 }
