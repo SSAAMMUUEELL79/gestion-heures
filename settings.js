@@ -176,11 +176,11 @@ class Settings {
     }
 
     showError(message) {
-        alert(message); // À remplacer par une meilleure UI pour les erreurs
+        alert(message);
     }
 
     showSuccess(message) {
-        alert(message); // À remplacer par une meilleure UI pour les succès
+        alert(message);
     }
 }
 
