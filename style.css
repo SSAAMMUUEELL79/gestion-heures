@@ -131,22 +131,24 @@ button {
 
 .tabs {
     display: flex;
-    margin-bottom: 20px;
     gap: 10px;
+    margin-bottom: 20px;
 }
 
 .tab-btn {
     flex: 1;
-    padding: 12px;
-    background: #ecf0f1;
+    padding: 10px;
+    background: none;
     border: none;
-    border-radius: 8px;
+    color: #666;
+    font-size: 16px;
     cursor: pointer;
+    transition: all 0.3s;
 }
 
 .tab-btn.active {
-    background: #3498db;
-    color: white;
+    color: #3498db;
+    border-bottom: 2px solid #3498db;
 }
 
 .tab-content {
@@ -157,10 +159,6 @@ button {
     display: block;
 }
 
-.time-section {
-    margin-bottom: 20px;
-}
-
 .time-inputs {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -168,55 +166,54 @@ button {
 }
 
 .results {
-    margin-top: 20px;
-    padding: 15px;
     background: #f8f9fa;
+    padding: 20px;
     border-radius: 8px;
 }
 
 .results p {
     margin-bottom: 10px;
-    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
 }
 
-.dialog {
+.employee-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.main-nav {
     position: fixed;
-    top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.dialog-content {
     background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 500px;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.employee-list {
+.nav-btn {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    color: #666;
+    padding: 10px;
+    width: auto;
 }
 
-.employee-item {
-    width: 100%;
-    padding: 12px;
-    text-align: left;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
+.nav-btn.active {
+    color: #3498db;
 }
 
-.employee-item:hover {
-    background: #e9ecef;
+.nav-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
 }
 
 /* Support du mode sombre */
@@ -228,8 +225,7 @@ body.dark-mode {
 body.dark-mode .card,
 body.dark-mode .dialog-content,
 body.dark-mode .settings-section,
-body.dark-mode .main-nav,
-body.dark-mode .auth-container {
+body.dark-mode .main-nav {
     background-color: #2d2d2d;
     color: #ffffff;
 }
@@ -241,130 +237,11 @@ body.dark-mode select {
     border-color: #4d4d4d;
 }
 
-body.dark-mode .tab-btn {
-    color: #ffffff;
-}
-
-body.dark-mode .tab-btn.active {
-    background-color: #3498db;
-}
-
-body.dark-mode .employee-item {
-    background-color: #3d3d3d;
-    border-color: #4d4d4d;
-}
-
-body.dark-mode .employee-item:hover {
-    background-color: #4d4d4d;
-}
-
 body.dark-mode .results {
     background-color: #3d3d3d;
 }
 
-/* Animations et transitions */
-.page {
-    transition: opacity 0.3s ease-in-out;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.page.active {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.primary-button,
-.secondary-button,
-.delete-button {
-    transition: transform 0.2s, background-color 0.3s;
-}
-
-.primary-button:active,
-.secondary-button:active,
-.delete-button:active {
-    transform: scale(0.98);
-}
-
-/* Notifications */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px 25px;
-    border-radius: 8px;
-    background: #ffffff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    animation: slideIn 0.3s ease-out;
-}
-
-.notification.success {
-    background: #2ecc71;
-    color: white;
-}
-
-.notification.error {
-    background: #e74c3c;
-    color: white;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-/* Ajustements pour l'accessibilité */
-:focus {
-    outline: 2px solid #3498db;
-    outline-offset: 2px;
-}
-
-.skip-link {
-    position: absolute;
-    top: -40px;
-    left: 0;
-    background: #3498db;
-    color: white;
-    padding: 8px;
-    z-index: 100;
-    transition: top 0.3s;
-}
-
-.skip-link:focus {
-    top: 0;
-}
-
-/* Ajustements pour l'impression */
-@media print {
-    .main-nav,
-    .auth-links,
-    .form-buttons,
-    #settingsBtn,
-    #logoutBtn {
-        display: none !important;
-    }
-
-    body {
-        background: white;
-    }
-
-    .card {
-        box-shadow: none;
-        border: 1px solid #ddd;
-    }
-
-    .results {
-        break-inside: avoid;
-    }
-}
-
+/* Responsive design */
 @media (max-width: 600px) {
     #app {
         padding: 10px;
@@ -380,11 +257,6 @@ body.dark-mode .results {
     }
 
     .card {
-        padding: 15px;
-    }
-
-    .dialog-content {
-        width: 95%;
         padding: 15px;
     }
 }
