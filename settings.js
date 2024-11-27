@@ -5,6 +5,12 @@ class Settings {
     }
 
     setupEventListeners() {
+        // Changement d'email de connexion
+        document.getElementById('emailChangeForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleEmailChange();
+        });
+
         // Changement de mot de passe
         document.getElementById('changePasswordForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -38,6 +44,12 @@ class Settings {
     }
 
     loadSettings() {
+        // Charger l'email actuel
+        const currentEmail = localStorage.getItem('userEmail');
+        if (currentEmail) {
+            document.getElementById('newEmail').placeholder = currentEmail;
+        }
+
         // Charger le mode sombre
         const darkMode = localStorage.getItem('darkMode') === 'true';
         document.getElementById('darkMode').checked = darkMode;
@@ -52,6 +64,30 @@ class Settings {
         if (recoveryEmail) {
             document.getElementById('recoveryEmail').value = recoveryEmail;
         }
+    }
+
+    handleEmailChange() {
+        const newEmail = document.getElementById('newEmail').value;
+        const currentPassword = document.getElementById('currentPassword')?.value;
+
+        if (!this.isEmailValid(newEmail)) {
+            this.showError('Veuillez entrer une adresse email valide');
+            return;
+        }
+
+        // Vérifier le mot de passe actuel avant de changer l'email
+        if (currentPassword !== localStorage.getItem('userPassword')) {
+            this.showError('Mot de passe incorrect');
+            return;
+        }
+
+        // Mettre à jour l'email
+        localStorage.setItem('userEmail', newEmail);
+        this.showSuccess('Email mis à jour avec succès');
+        
+        // Réinitialiser le formulaire
+        document.getElementById('emailChangeForm').reset();
+        document.getElementById('newEmail').placeholder = newEmail;
     }
 
     handlePasswordChange() {
