@@ -5,9 +5,12 @@ class Auth {
         this.setupEventListeners();
         this.autoLogoutTimer = null;
         this.autoLogoutTime = this.getAutoLogoutTime();
+        console.log('Auth initialized'); // Debug
     }
 
     initializeAuth() {
+        console.log('Initializing auth...'); // Debug
+
         // Vérifier si l'utilisateur est déjà connecté
         const token = localStorage.getItem('authToken');
         const expiry = localStorage.getItem('authExpiry');
@@ -28,52 +31,86 @@ class Auth {
 
         // Charger l'état "Se souvenir de moi"
         const rememberMe = localStorage.getItem('rememberMe') === 'true';
-        if (document.getElementById('rememberMe')) {
-            document.getElementById('rememberMe').checked = rememberMe;
+        console.log('Loading rememberMe:', rememberMe); // Debug
+        
+        const checkbox = document.getElementById('rememberMe');
+        if (checkbox) {
+            checkbox.checked = rememberMe;
+            console.log('Checkbox state set to:', checkbox.checked); // Debug
+        } else {
+            console.log('Checkbox element not found!'); // Debug
         }
     }
 
     setupEventListeners() {
+        console.log('Setting up event listeners...'); // Debug
+
         // Formulaire de connexion
-        document.getElementById('loginForm')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleLogin();
-        });
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleLogin();
+            });
+            console.log('Login form listener added'); // Debug
+        }
 
         // Bouton de déconnexion
-        document.getElementById('logoutBtn')?.addEventListener('click', () => {
-            this.logout();
-        });
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.logout();
+            });
+            console.log('Logout button listener added'); // Debug
+        }
 
         // Mot de passe oublié
-        document.getElementById('forgotPassword')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.handleForgotPassword();
-        });
+        const forgotPassword = document.getElementById('forgotPassword');
+        if (forgotPassword) {
+            forgotPassword.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleForgotPassword();
+            });
+            console.log('Forgot password listener added'); // Debug
+        }
 
         // Afficher/Masquer le mot de passe
-        document.querySelector('.toggle-password')?.addEventListener('click', () => {
-            this.togglePasswordVisibility();
-        });
+        const togglePassword = document.querySelector('.toggle-password');
+        if (togglePassword) {
+            togglePassword.addEventListener('click', () => {
+                this.togglePasswordVisibility();
+            });
+            console.log('Toggle password listener added'); // Debug
+        }
 
         // Se souvenir de moi
-        document.getElementById('rememberMe')?.addEventListener('change', (e) => {
-            localStorage.setItem('rememberMe', e.target.checked);
-        });
+        const rememberMeCheckbox = document.getElementById('rememberMe');
+        if (rememberMeCheckbox) {
+            rememberMeCheckbox.addEventListener('click', () => {
+                console.log('Checkbox clicked:', rememberMeCheckbox.checked); // Debug
+                localStorage.setItem('rememberMe', rememberMeCheckbox.checked);
+                console.log('Saved to localStorage:', localStorage.getItem('rememberMe')); // Debug
+            });
+            console.log('Remember me listener added'); // Debug
+        } else {
+            console.log('Remember me checkbox not found!'); // Debug
+        }
     }
 
     handleLogin() {
+        console.log('Handling login...'); // Debug
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const rememberMe = document.getElementById('rememberMe').checked;
+        console.log('Remember me state during login:', rememberMe); // Debug
 
         const validEmail = localStorage.getItem('userEmail');
         const validPassword = localStorage.getItem('userPassword');
 
         if (email === validEmail && password === validPassword) {
             this.isAuthenticated = true;
-            // Sauvegarder l'état "Se souvenir de moi"
             localStorage.setItem('rememberMe', rememberMe);
+            console.log('Remember me saved during login:', localStorage.getItem('rememberMe')); // Debug
             this.createAuthToken(rememberMe);
             this.showAuthenticatedUI();
             this.setupAutoLogout();
@@ -88,9 +125,11 @@ class Auth {
         
         localStorage.setItem('authToken', token);
         localStorage.setItem('authExpiry', expiry);
+        console.log('Auth token created, remember me:', rememberMe); // Debug
     }
 
     logout() {
+        console.log('Logging out...'); // Debug
         this.isAuthenticated = false;
         localStorage.removeItem('authToken');
         localStorage.removeItem('authExpiry');
@@ -103,7 +142,11 @@ class Auth {
             loginForm.reset();
             // Restaurer l'état "Se souvenir de moi"
             const rememberMe = localStorage.getItem('rememberMe') === 'true';
-            document.getElementById('rememberMe').checked = rememberMe;
+            const checkbox = document.getElementById('rememberMe');
+            if (checkbox) {
+                checkbox.checked = rememberMe;
+                console.log('Remember me restored after logout:', rememberMe); // Debug
+            }
         }
     }
 
@@ -114,7 +157,6 @@ class Auth {
             return;
         }
 
-        // Simuler l'envoi d'un email
         const tempPassword = Math.random().toString(36).substring(2, 10);
         localStorage.setItem('userPassword', tempPassword);
         
@@ -166,6 +208,7 @@ class Auth {
 
 // Initialiser l'authentification
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing auth...'); // Debug
     window.auth = new Auth();
 });
 
