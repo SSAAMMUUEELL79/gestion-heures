@@ -25,6 +25,12 @@ class Auth {
             localStorage.setItem('userEmail', 'admin@example.com');
             localStorage.setItem('userPassword', 'admin123');
         }
+
+        // Charger l'état "Se souvenir de moi"
+        const rememberMe = localStorage.getItem('rememberMe') === 'true';
+        if (document.getElementById('rememberMe')) {
+            document.getElementById('rememberMe').checked = rememberMe;
+        }
     }
 
     setupEventListeners() {
@@ -66,6 +72,8 @@ class Auth {
 
         if (email === validEmail && password === validPassword) {
             this.isAuthenticated = true;
+            // Sauvegarder l'état "Se souvenir de moi"
+            localStorage.setItem('rememberMe', rememberMe);
             this.createAuthToken(rememberMe);
             this.showAuthenticatedUI();
             this.setupAutoLogout();
@@ -88,6 +96,15 @@ class Auth {
         localStorage.removeItem('authExpiry');
         clearTimeout(this.autoLogoutTimer);
         this.showLoginUI();
+
+        // Réinitialiser le formulaire de connexion
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.reset();
+            // Restaurer l'état "Se souvenir de moi"
+            const rememberMe = localStorage.getItem('rememberMe') === 'true';
+            document.getElementById('rememberMe').checked = rememberMe;
+        }
     }
 
     handleForgotPassword() {
