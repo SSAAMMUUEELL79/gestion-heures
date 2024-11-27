@@ -100,14 +100,17 @@ class App {
         if (document.getElementById('year')) {
             document.getElementById('year').value = currentYear;
         }
+
+        // Initialiser le mois courant
+        const currentMonth = new Date().getMonth() + 1;
+        if (document.getElementById('month')) {
+            document.getElementById('month').value = currentMonth;
+        }
     }
 
     initializeEventListeners() {
-        // Boutons de la page de connexion
         document.getElementById('newEmployeeBtn')?.addEventListener('click', () => this.showPage('registerPage'));
         document.getElementById('loadEmployeeBtn')?.addEventListener('click', () => this.showEmployeeList());
-
-        // Formulaire d'inscription
         document.getElementById('registerForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
             this.registerEmployee();
@@ -120,20 +123,28 @@ class App {
             });
         });
 
-        // Cases à cocher d'absence
-        const absenceCheckboxes = ['absence', 'holiday', 'vacation', 'economicUnemployment', 'temporaryUnemployment'];
-        absenceCheckboxes.forEach(id => {
-            const checkbox = document.getElementById(id);
-            if (checkbox) {
-                checkbox.addEventListener('change', () => this.handleAbsenceCheck(id));
-            }
+        // Boutons radio d'absence
+        document.querySelectorAll('input[name="absenceType"]').forEach(radio => {
+            radio.addEventListener('change', () => this.handleAbsenceTypeChange());
         });
 
-        // Bouton de sauvegarde
         document.getElementById('saveDay')?.addEventListener('click', () => this.saveWorkday());
-
-        // Bouton de calcul
         document.getElementById('calculateBtn')?.addEventListener('click', () => this.calculateMonthly());
+    }
+
+    handleAbsenceTypeChange() {
+        const selectedType = document.querySelector('input[name="absenceType"]:checked').value;
+        const timeInputs = ['startMorning', 'endMorning', 'startAfternoon', 'endAfternoon'];
+        
+        timeInputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.disabled = selectedType !== 'none';
+                if (selectedType !== 'none') {
+                    input.value = '';
+                }
+            }
+        });
     }
 
     showPage(pageId) {
@@ -215,41 +226,25 @@ class App {
         }
     }
 
-    handleAbsenceCheck(checkedId) {
-        const checkboxes = ['absence', 'holiday', 'vacation', 'economicUnemployment', 'temporaryUnemployment'];
-        const timeInputs = ['startMorning', 'endMorning', 'startAfternoon', 'endAfternoon'];
-        
-        checkboxes.forEach(id => {
-            if (id !== checkedId) {
-                const checkbox = document.getElementById(id);
-                if (checkbox) checkbox.checked = false;
-            }
-        });
-
-        const isAnyAbsenceChecked = checkboxes.some(id => document.getElementById(id)?.checked);
-        
-        timeInputs.forEach(id => {
-            const input = document.getElementById(id);
-            if (input) {
-                input.disabled = isAnyAbsenceChecked;
-                if (isAnyAbsenceChecked) input.value = '';
-            }
-        });
-    }
-
     saveWorkday() {
         const date = document.getElementById('workDate')?.value;
+        if (!date) {
+            alert('Veuillez sélectionner une date');
+            return;
+        }
+
+        const absenceType = document.querySelector('input[name="absenceType"]:checked')?.value;
         
         try {
-            if (document.getElementById('absence')?.checked) {
+            if (absenceType === 'absence') {
                 this.currentEmployee.absences.push(date);
-            } else if (document.getElementById('holiday')?.checked) {
+            } else if (absenceType === 'holiday') {
                 this.currentEmployee.holidays.push(date);
-            } else if (document.getElementById('vacation')?.checked) {
+            } else if (absenceType === 'vacation') {
                 this.currentEmployee.vacations.push(date);
-            } else if (document.getElementById('economicUnemployment')?.checked) {
+            } else if (absenceType === 'economic') {
                 this.currentEmployee.economicUnemployment.push(date);
-            } else if (document.getElementById('temporaryUnemployment')?.checked) {
+            } else if (absenceType === 'temporary') {
                 this.currentEmployee.temporaryUnemployment.push(date);
             } else {
                 this.currentEmployee.workHours[date] = {
@@ -266,28 +261,17 @@ class App {
 
             this.currentEmployee.save();
             alert('Journée enregistrée avec succès !');
-            this.resetForm();
+            
+            // Réinitialiser le formulaire
+            document.getElementById('noAbsence').checked = true;
+            this.handleAbsenceTypeChange();
+            ['startMorning', 'endMorning', 'startAfternoon', 'endAfternoon'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = '';
+            });
         } catch (error) {
             alert('Erreur lors de l\'enregistrement : ' + error.message);
         }
-    }
-
-    resetForm() {
-        ['startMorning', 'endMorning', 'startAfternoon', 'endAfternoon'].forEach(id => {
-            const input = document.getElementById(id);
-            if (input) {
-                input.value = '';
-                input.disabled = false;
-            }
-        });
-
-        ['absence', 'holiday', 'vacation', 'economicUnemployment', 'temporaryUnemployment'].forEach(id => {
-            const checkbox = document.getElementById(id);
-            if (checkbox) {
-                checkbox.checked = false;
-                checkbox.disabled = false;
-            }
-        });
     }
 
     calculateMonthly() {
@@ -302,7 +286,6 @@ class App {
         let economic = 0;
         let temporary = 0;
 
-        // Calculer le nombre de jours dans le mois
         const daysInMonth = new Date(year, month, 0).getDate();
 
         for (let day = 1; day <= daysInMonth; day++) {
