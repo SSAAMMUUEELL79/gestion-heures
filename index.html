@@ -129,25 +129,29 @@
 
                     <div class="absence-section">
                         <h3>Type d'absence</h3>
-                        <div class="checkbox-group">
-                            <div class="checkbox">
-                                <input type="checkbox" id="absence" name="absence">
+                        <div class="radio-group">
+                            <div class="radio">
+                                <input type="radio" id="noAbsence" name="absenceType" value="none" checked>
+                                <label for="noAbsence">Pas d'absence</label>
+                            </div>
+                            <div class="radio">
+                                <input type="radio" id="absence" name="absenceType" value="absence">
                                 <label for="absence">Absence</label>
                             </div>
-                            <div class="checkbox">
-                                <input type="checkbox" id="holiday" name="holiday">
+                            <div class="radio">
+                                <input type="radio" id="holiday" name="absenceType" value="holiday">
                                 <label for="holiday">Jour Férié</label>
                             </div>
-                            <div class="checkbox">
-                                <input type="checkbox" id="vacation" name="vacation">
+                            <div class="radio">
+                                <input type="radio" id="vacation" name="absenceType" value="vacation">
                                 <label for="vacation">Congé</label>
                             </div>
-                            <div class="checkbox">
-                                <input type="checkbox" id="economicUnemployment" name="economicUnemployment">
+                            <div class="radio">
+                                <input type="radio" id="economicUnemployment" name="absenceType" value="economic">
                                 <label for="economicUnemployment">Chômage Économique</label>
                             </div>
-                            <div class="checkbox">
-                                <input type="checkbox" id="temporaryUnemployment" name="temporaryUnemployment">
+                            <div class="radio">
+                                <input type="radio" id="temporaryUnemployment" name="absenceType" value="temporary">
                                 <label for="temporaryUnemployment">Chômage Temporaire</label>
                             </div>
                         </div>
