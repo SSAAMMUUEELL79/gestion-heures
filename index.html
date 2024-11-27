@@ -51,6 +51,20 @@
         <div id="settingsPage" class="page">
             <div class="settings-container">
                 <h2>Paramètres</h2>
+                
+                <!-- Section Email -->
+                <div class="settings-section">
+                    <h3>Email de connexion</h3>
+                    <form id="emailChangeForm" class="settings-form">
+                        <div class="form-group">
+                            <label for="newEmail">Nouvel email</label>
+                            <input type="email" id="newEmail" required>
+                        </div>
+                        <button type="submit" class="primary-button">Mettre à jour l'email</button>
+                    </form>
+                </div>
+
+                <!-- Section Mot de passe -->
                 <div class="settings-section">
                     <h3>Sécurité</h3>
                     <form id="changePasswordForm" class="settings-form">
@@ -70,6 +84,7 @@
                     </form>
                 </div>
 
+                <!-- Section Email de récupération -->
                 <div class="settings-section">
                     <h3>Email de récupération</h3>
                     <form id="recoveryEmailForm" class="settings-form">
@@ -81,6 +96,7 @@
                     </form>
                 </div>
 
+                <!-- Section Préférences -->
                 <div class="settings-section">
                     <h3>Préférences</h3>
                     <div class="settings-option">
@@ -104,19 +120,9 @@
         </div>
 
         <!-- Le reste du code existant -->
-        <!-- Page de connexion existante -->
-        <div id="loginPage" class="page">
-            <h1>Gestion des Heures</h1>
-            <div class="card">
-                <button id="newEmployeeBtn" class="primary-button">Nouvel Employé</button>
-                <button id="loadEmployeeBtn" class="secondary-button">Charger Employé</button>
-            </div>
-        </div>
-
-        <!-- Le reste du code existant reste inchangé -->
         <!-- ... -->
 
-        <!-- Nouvelle barre de navigation -->
+        <!-- Barre de navigation -->
         <nav id="mainNav" class="main-nav">
             <button id="homeBtn" class="nav-btn active">
                 <svg viewBox="0 0 24 24" width="24" height="24">
