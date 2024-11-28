@@ -47,17 +47,51 @@
     fill: currentColor;
 }
 
+/* Style amélioré pour la case "Se souvenir de moi" */
 .form-check {
     display: flex;
     align-items: center;
     gap: 10px;
-    user-select: none;
+    margin: 10px 0;
+    padding: 5px;
 }
 
 .form-check input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     margin: 0;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 2px solid #3498db;
+    border-radius: 4px;
+    outline: none;
+    transition: all 0.3s;
+    position: relative;
+    background-color: white;
+}
+
+.form-check input[type="checkbox"]:checked {
+    background-color: #3498db;
+}
+
+.form-check input[type="checkbox"]:checked::before {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.form-check label {
+    cursor: pointer;
+    user-select: none;
+    color: #666;
+    font-size: 16px;
 }
 
 .auth-links {
@@ -184,11 +218,37 @@ body.dark-mode .toggle-password:hover {
     color: #aaa;
 }
 
+body.dark-mode .form-check input[type="checkbox"] {
+    border-color: #5dade2;
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .form-check input[type="checkbox"]:checked {
+    background-color: #5dade2;
+}
+
+body.dark-mode .form-check label {
+    color: #fff;
+}
+
 /* Responsive design */
 @media (max-width: 480px) {
     .auth-container,
     .settings-container {
         margin: 20px 10px;
         padding: 20px;
+    }
+
+    .form-check input[type="checkbox"] {
+        width: 28px;
+        height: 28px;
+    }
+
+    .form-check input[type="checkbox"]:checked::before {
+        font-size: 18px;
+    }
+
+    .form-check label {
+        font-size: 16px;
     }
 }
