@@ -47,26 +47,36 @@
     fill: currentColor;
 }
 
-/* Style simplifié pour la case à cocher */
+/* Styles spécifiques pour iOS */
+input[type="checkbox"] {
+    -webkit-appearance: checkbox !important;
+    appearance: checkbox !important;
+    width: 30px !important;
+    height: 30px !important;
+    margin-right: 10px !important;
+    border: 2px solid #3498db !important;
+    background-color: white !important;
+}
+
+/* Pour Safari sur iOS */
+@supports (-webkit-touch-callout: none) {
+    input[type="checkbox"] {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
 .form-check {
     display: flex;
     align-items: center;
     margin: 15px 0;
 }
 
-.form-check input[type="checkbox"] {
-    -webkit-appearance: checkbox;
-    appearance: checkbox;
-    width: 20px !important;
-    height: 20px !important;
-    margin-right: 10px;
-    cursor: pointer;
-}
-
 .form-check label {
     cursor: pointer;
     user-select: none;
     color: #666;
+    font-size: 16px;
 }
 
 .auth-links {
@@ -197,6 +207,11 @@ body.dark-mode .form-check label {
     color: #fff;
 }
 
+body.dark-mode input[type="checkbox"] {
+    border-color: #5dade2 !important;
+    background-color: #2d2d2d !important;
+}
+
 /* Responsive design */
 @media (max-width: 480px) {
     .auth-container,
@@ -205,8 +220,12 @@ body.dark-mode .form-check label {
         padding: 20px;
     }
 
-    .form-check input[type="checkbox"] {
+    input[type="checkbox"] {
         width: 24px !important;
         height: 24px !important;
+    }
+
+    .form-check label {
+        font-size: 14px;
     }
 }
