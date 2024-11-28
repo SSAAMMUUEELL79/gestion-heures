@@ -36,8 +36,11 @@
                         </div>
                     </div>
                     <div class="form-check">
-                        <input type="checkbox" id="rememberMe">
-                        <label for="rememberMe">Se souvenir de moi</label>
+                        <label class="switch">
+                            <input type="checkbox" id="rememberMe">
+                            <span class="slider round"></span>
+                            <span class="switch-label">Se souvenir de moi</span>
+                        </label>
                     </div>
                     <button type="submit" class="primary-button">Se connecter</button>
                     <div class="auth-links">
@@ -49,74 +52,65 @@
 
         <!-- 2. PAGE D'ACCUEIL -->
         <div id="loginPage" class="page">
-            <h1>Gestion des Heures</h1>
             <div class="card">
-                <button id="newEmployeeBtn" class="primary-button">Nouvel Employé</button>
-                <button id="loadEmployeeBtn" class="secondary-button">Charger Employé</button>
+                <h2>Gestion des Heures</h2>
+                <div class="button-group">
+                    <button id="newEmployeeBtn" class="primary-button">Nouvel Employé</button>
+                    <button id="loadEmployeeBtn" class="secondary-button">Charger Employé</button>
+                </div>
             </div>
         </div>
 
         <!-- 3. PAGE DE SAISIE DES HEURES -->
         <div id="timesheetPage" class="page">
-            <div class="employee-info">
-                <h2 id="employeeHeader"></h2>
-                <button id="deleteEmployeeBtn" class="delete-button">Supprimer l'employé</button>
-            </div>
-
             <div class="card">
+                <h3 id="employeeHeader"></h3>
                 <div class="tabs">
-                    <button class="tab-btn active" data-tab="timesheet">Saisie des heures</button>
+                    <button class="tab-btn active" data-tab="entry">Saisie</button>
                     <button class="tab-btn" data-tab="results">Résultats</button>
                 </div>
 
-                <!-- Onglet Saisie des heures -->
-                <div id="timesheetTab" class="tab-content active">
+                <!-- Onglet Saisie -->
+                <div id="entryTab" class="tab-content active">
                     <div class="form-section">
-                        <h3>Date</h3>
                         <div class="form-group">
-                            <input type="date" id="dateInput">
+                            <label for="dateInput">Date</label>
+                            <input type="date" id="dateInput" required>
                         </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3>Heures de travail</h3>
                         <div class="time-inputs">
                             <div class="form-group">
-                                <label for="startTime">Début</label>
+                                <label for="startTime">Heure début</label>
                                 <input type="time" id="startTime">
                             </div>
                             <div class="form-group">
-                                <label for="endTime">Fin</label>
+                                <label for="endTime">Heure fin</label>
                                 <input type="time" id="endTime">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3>Type d'absence</h3>
                         <div class="form-group">
+                            <label for="absenceType">Type d'absence</label>
                             <select id="absenceType">
                                 <option value="">Aucune absence</option>
-                                <option value="CP">Congés payés</option>
+                                <option value="CP">Congé payé</option>
                                 <option value="CSS">Congé sans solde</option>
                                 <option value="M">Maladie</option>
                                 <option value="F">Formation</option>
                             </select>
                         </div>
+                        <button id="saveBtn" class="primary-button">Enregistrer</button>
+                        <button id="deleteEmployeeBtn" class="delete-button">Supprimer l'employé</button>
                     </div>
-
-                    <button id="saveBtn" class="primary-button">Enregistrer</button>
                 </div>
 
                 <!-- Onglet Résultats -->
                 <div id="resultsTab" class="tab-content">
                     <div class="results">
-                        <p>Heures travaillées : <span id="totalHours">0</span></p>
-                        <p>Congés payés : <span id="totalCP">0</span></p>
-                        <p>Congés sans solde : <span id="totalCSS">0</span></p>
-                        <p>Maladie : <span id="totalM">0</span></p>
-                        <p>Formation : <span id="totalF">0</span></p>
-                        <p>Salaire brut : <span id="salary">0</span> €</p>
+                        <p>Heures travaillées : <span id="totalHours">0</span>h</p>
+                        <p>Congés payés : <span id="totalCP">0</span> jours</p>
+                        <p>Congés sans solde : <span id="totalCSS">0</span> jours</p>
+                        <p>Maladie : <span id="totalM">0</span> jours</p>
+                        <p>Formation : <span id="totalF">0</span> jours</p>
+                        <p>Salaire : <span id="salary">0</span>€</p>
                     </div>
                 </div>
             </div>
@@ -125,23 +119,23 @@
         <!-- 4. PAGE DES PARAMÈTRES -->
         <div id="settingsPage" class="page">
             <div class="settings-container">
-                <h2>Paramètres</h2>
-                
-                <!-- Section Email -->
                 <div class="settings-section">
-                    <h3>Email de connexion</h3>
+                    <h3>Paramètres de connexion</h3>
                     <form id="emailChangeForm" class="settings-form">
                         <div class="form-group">
                             <label for="newEmail">Nouvel email</label>
                             <input type="email" id="newEmail" required>
                         </div>
-                        <button type="submit" class="primary-button">Mettre à jour l'email</button>
+                        <div class="form-group">
+                            <label for="currentPassword">Mot de passe actuel</label>
+                            <input type="password" id="currentPassword" required>
+                        </div>
+                        <button type="submit" class="primary-button">Changer l'email</button>
                     </form>
                 </div>
 
-                <!-- Section Mot de passe -->
                 <div class="settings-section">
-                    <h3>Sécurité</h3>
+                    <h3>Changer le mot de passe</h3>
                     <form id="changePasswordForm" class="settings-form">
                         <div class="form-group">
                             <label for="currentPassword">Mot de passe actuel</label>
@@ -159,7 +153,6 @@
                     </form>
                 </div>
 
-                <!-- Section Email de récupération -->
                 <div class="settings-section">
                     <h3>Email de récupération</h3>
                     <form id="recoveryEmailForm" class="settings-form">
@@ -167,11 +160,10 @@
                             <label for="recoveryEmail">Email de récupération</label>
                             <input type="email" id="recoveryEmail" required>
                         </div>
-                        <button type="submit" class="primary-button">Mettre à jour l'email</button>
+                        <button type="submit" class="primary-button">Mettre à jour</button>
                     </form>
                 </div>
 
-                <!-- Section Préférences -->
                 <div class="settings-section">
                     <h3>Préférences</h3>
                     <div class="settings-option">
