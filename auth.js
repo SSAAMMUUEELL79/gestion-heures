@@ -1,5 +1,5 @@
-// Données de test pour l'authentification
-const users = [
+// Données de test pour l'authentification (accessibles globalement)
+window.users = [
     {
         email: 'test@test.com',
         password: 'test123',
@@ -98,4 +98,97 @@ document.getElementById('forgotPassword').addEventListener('click', function(e) 
     } else {
         alert('Aucun email de récupération n\'est configuré pour cet utilisateur');
     }
+});
+
+// Gestion du changement de mot de passe
+document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('currentPassword2').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // Récupérer l'email de l'utilisateur connecté
+    const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+    const user = users.find(u => u.email === userEmail);
+    
+    if (!user) {
+        alert('Erreur : utilisateur non trouvé');
+        return;
+    }
+    
+    // Vérifier le mot de passe actuel
+    if (user.password !== currentPassword) {
+        alert('Le mot de passe actuel est incorrect');
+        return;
+    }
+    
+    // Vérifier que les nouveaux mots de passe correspondent
+    if (newPassword !== confirmPassword) {
+        alert('Les nouveaux mots de passe ne correspondent pas');
+        return;
+    }
+    
+    // Mettre à jour le mot de passe
+    user.password = newPassword;
+    alert('Mot de passe modifié avec succès');
+    
+    // Réinitialiser le formulaire
+    document.getElementById('changePasswordForm').reset();
+});
+
+// Gestion du changement d'email
+document.getElementById('emailChangeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const newEmail = document.getElementById('newEmail').value;
+    const currentPassword = document.getElementById('currentPassword').value;
+    
+    // Récupérer l'email de l'utilisateur connecté
+    const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+    const user = users.find(u => u.email === userEmail);
+    
+    if (!user) {
+        alert('Erreur : utilisateur non trouvé');
+        return;
+    }
+    
+    // Vérifier le mot de passe
+    if (user.password !== currentPassword) {
+        alert('Le mot de passe est incorrect');
+        return;
+    }
+    
+    // Mettre à jour l'email
+    user.email = newEmail;
+    localStorage.setItem('userEmail', newEmail);
+    sessionStorage.setItem('userEmail', newEmail);
+    
+    alert('Email modifié avec succès');
+    
+    // Réinitialiser le formulaire
+    document.getElementById('emailChangeForm').reset();
+});
+
+// Gestion de l'email de récupération
+document.getElementById('recoveryEmailForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const recoveryEmail = document.getElementById('recoveryEmail').value;
+    
+    // Récupérer l'email de l'utilisateur connecté
+    const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+    const user = users.find(u => u.email === userEmail);
+    
+    if (!user) {
+        alert('Erreur : utilisateur non trouvé');
+        return;
+    }
+    
+    // Mettre à jour l'email de récupération
+    user.recoveryEmail = recoveryEmail;
+    alert('Email de récupération mis à jour avec succès');
+    
+    // Réinitialiser le formulaire
+    document.getElementById('recoveryEmailForm').reset();
 });
