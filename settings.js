@@ -1,190 +1,85 @@
-class Settings {
-    constructor() {
-        this.setupEventListeners();
-        this.loadSettings();
-    }
+// settings.js
 
-    setupEventListeners() {
-        // Changement d'email de connexion
-        document.getElementById('emailChangeForm')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleEmailChange();
-        });
-
-        // Changement de mot de passe
-        document.getElementById('changePasswordForm')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handlePasswordChange();
-        });
-
-        // Mise à jour de l'email de récupération
-        document.getElementById('recoveryEmailForm')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleRecoveryEmailUpdate();
-        });
-
-        // Mode sombre
-        document.getElementById('darkMode')?.addEventListener('change', (e) => {
-            this.handleDarkModeToggle(e.target.checked);
-        });
-
-        // Déconnexion automatique
-        document.getElementById('autoLogout')?.addEventListener('change', (e) => {
-            this.handleAutoLogoutChange(e.target.value);
-        });
-
-        // Navigation
-        document.getElementById('settingsBtn')?.addEventListener('click', () => {
-            this.showSettingsPage();
-        });
-
-        document.getElementById('homeBtn')?.addEventListener('click', () => {
-            this.showHomePage();
-        });
-    }
-
-    loadSettings() {
-        // Charger l'email actuel
-        const currentEmail = localStorage.getItem('userEmail');
-        if (currentEmail) {
-            document.getElementById('newEmail').placeholder = currentEmail;
+// Fonction pour charger les paramètres de l'utilisateur
+function loadUserSettings() {
+    const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+    const user = users.find(u => u.email === userEmail);
+    
+    if (user) {
+        // Pré-remplir l'email de récupération s'il existe
+        if (user.recoveryEmail) {
+            document.getElementById('recoveryEmail').value = user.recoveryEmail;
         }
 
-        // Charger le mode sombre
-        const darkMode = localStorage.getItem('darkMode') === 'true';
+        // Charger les autres paramètres
+        const darkMode = localStorage.getItem('darkMode') === 'enabled';
         document.getElementById('darkMode').checked = darkMode;
-        this.handleDarkModeToggle(darkMode);
-
-        // Charger le temps de déconnexion automatique
-        const autoLogout = localStorage.getItem('autoLogoutTime') || '30';
-        document.getElementById('autoLogout').value = autoLogout;
-
-        // Charger l'email de récupération
-        const recoveryEmail = localStorage.getItem('recoveryEmail');
-        if (recoveryEmail) {
-            document.getElementById('recoveryEmail').value = recoveryEmail;
-        }
-    }
-
-    handleEmailChange() {
-        const newEmail = document.getElementById('newEmail').value;
-        const currentPassword = document.getElementById('currentPassword')?.value;
-
-        if (!this.isEmailValid(newEmail)) {
-            this.showError('Veuillez entrer une adresse email valide');
-            return;
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
         }
 
-        // Vérifier le mot de passe actuel avant de changer l'email
-        if (currentPassword !== localStorage.getItem('userPassword')) {
-            this.showError('Mot de passe incorrect');
-            return;
+        const autoLogoutTime = localStorage.getItem('autoLogoutTime');
+        if (autoLogoutTime) {
+            document.getElementById('autoLogout').value = autoLogoutTime;
         }
-
-        // Mettre à jour l'email
-        localStorage.setItem('userEmail', newEmail);
-        this.showSuccess('Email mis à jour avec succès');
-        
-        // Réinitialiser le formulaire
-        document.getElementById('emailChangeForm').reset();
-        document.getElementById('newEmail').placeholder = newEmail;
-    }
-
-    handlePasswordChange() {
-        const currentPassword = document.getElementById('currentPassword').value;
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        // Vérifier le mot de passe actuel
-        if (currentPassword !== localStorage.getItem('userPassword')) {
-            this.showError('Mot de passe actuel incorrect');
-            return;
-        }
-
-        // Vérifier que les nouveaux mots de passe correspondent
-        if (newPassword !== confirmPassword) {
-            this.showError('Les nouveaux mots de passe ne correspondent pas');
-            return;
-        }
-
-        // Vérifier la complexité du mot de passe
-        if (!this.isPasswordValid(newPassword)) {
-            this.showError('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre');
-            return;
-        }
-
-        // Mettre à jour le mot de passe
-        localStorage.setItem('userPassword', newPassword);
-        this.showSuccess('Mot de passe mis à jour avec succès');
-        
-        // Réinitialiser le formulaire
-        document.getElementById('changePasswordForm').reset();
-    }
-
-    handleRecoveryEmailUpdate() {
-        const email = document.getElementById('recoveryEmail').value;
-        
-        if (!this.isEmailValid(email)) {
-            this.showError('Veuillez entrer une adresse email valide');
-            return;
-        }
-
-        localStorage.setItem('recoveryEmail', email);
-        this.showSuccess('Email de récupération mis à jour avec succès');
-    }
-
-    handleDarkModeToggle(enabled) {
-        localStorage.setItem('darkMode', enabled);
-        document.body.classList.toggle('dark-mode', enabled);
-    }
-
-    handleAutoLogoutChange(value) {
-        localStorage.setItem('autoLogoutTime', value);
-        if (window.auth) {
-            window.auth.autoLogoutTime = value;
-            window.auth.setupAutoLogout();
-        }
-    }
-
-    showSettingsPage() {
-        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-        document.getElementById('settingsPage').classList.add('active');
-        
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('settingsBtn').classList.add('active');
-    }
-
-    showHomePage() {
-        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-        document.getElementById('loginPage').classList.add('active');
-        
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('homeBtn').classList.add('active');
-    }
-
-    isPasswordValid(password) {
-        const minLength = 8;
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumbers = /\d/.test(password);
-
-        return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers;
-    }
-
-    isEmailValid(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    showError(message) {
-        alert(message);
-    }
-
-    showSuccess(message) {
-        alert(message);
     }
 }
 
-// Initialiser les paramètres
-document.addEventListener('DOMContentLoaded', () => {
-    window.settings = new Settings();
+// Réinitialiser les formulaires lors du changement de page
+function resetSettingsForms() {
+    document.getElementById('emailChangeForm').reset();
+    document.getElementById('changePasswordForm').reset();
+    document.getElementById('recoveryEmailForm').reset();
+}
+
+// Gestionnaire pour le bouton Paramètres
+document.getElementById('settingsBtn').addEventListener('click', function() {
+    resetSettingsForms();
+    loadUserSettings();
+});
+
+// Gestionnaire pour le mode sombre
+document.getElementById('darkMode').addEventListener('change', function() {
+    if (this.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('darkMode', 'enabled');
+    } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'disabled');
+    }
+});
+
+// Gestionnaire pour la déconnexion automatique
+document.getElementById('autoLogout').addEventListener('change', function() {
+    localStorage.setItem('autoLogoutTime', this.value);
+    // Appeler la fonction setAutoLogoutTimer définie dans auth.js
+    if (typeof setAutoLogoutTimer === 'function') {
+        setAutoLogoutTimer();
+    }
+});
+
+// Charger les paramètres au chargement de la page
+window.addEventListener('load', function() {
+    loadUserSettings();
+    
+    // Vérifier si l'utilisateur est connecté
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || 
+                      sessionStorage.getItem('isLoggedIn') === 'true';
+    
+    if (isLoggedIn) {
+        // Initialiser les paramètres de déconnexion automatique
+        const autoLogoutTime = localStorage.getItem('autoLogoutTime');
+        if (autoLogoutTime) {
+            document.getElementById('autoLogout').value = autoLogoutTime;
+            if (typeof setAutoLogoutTimer === 'function') {
+                setAutoLogoutTimer();
+            }
+        }
+    }
+});
+
+// Gestionnaire d'erreurs global
+window.addEventListener('error', function(e) {
+    console.error('Erreur dans settings.js:', e.error);
+    alert('Une erreur est survenue. Veuillez réessayer.');
 });
