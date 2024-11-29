@@ -1554,3 +1554,116 @@ function addExportButton(documentId) {
     
     document.querySelector('.preview-actions').appendChild(exportBtn);
 }
+// Gestionnaire des prestations
+class PrestationManager {
+    constructor() {
+        this.prestations = [];
+        this.tarifHoraire = 25; // Tarif par défaut
+    }
+
+    // Ajouter une nouvelle prestation
+    ajouterPrestation(prestation) {
+        prestation.id = Date.now();
+        prestation.montant = this.calculerMontant(prestation);
+        this.prestations.push(prestation);
+        this.sauvegarderPrestations();
+        return prestation;
+    }
+
+    // Calculer le montant de la prestation
+    calculerMontant(prestation) {
+        const heures = this.calculerHeures(prestation.heureDebut, prestation.heureFin);
+        return heures * this.tarifHoraire;
+    }
+
+    // Calculer le nombre d'heures
+    calculerHeures(debut, fin) {
+        const [heureDebut, minDebut] = debut.split(':').map(Number);
+        const [heureFin, minFin] = fin.split(':').map(Number);
+        
+        let heures = heureFin - heureDebut;
+        let minutes = minFin - minDebut;
+        
+        if (minutes < 0) {
+            heures--;
+            minutes += 60;
+        }
+        
+        return heures + (minutes / 60);
+    }
+
+    // Sauvegarder dans le localStorage
+    sauvegarderPrestations() {
+        localStorage.setItem('prestations', JSON.stringify(this.prestations));
+    }
+
+    // Charger depuis le localStorage
+    chargerPrestations() {
+        const saved = localStorage.getItem('prestations');
+        this.prestations = saved ? JSON.parse(saved) : [];
+    }
+}
+
+// Interface utilisateur des prestations
+function afficherGestionPrestations() {
+    const container = document.querySelector('.dashboard-content');
+    container.innerHTML = `
+        <div class="section-header">
+            <h1>Gestion des Prestations</h1>
+            <button class="btn-primary" id="nouvellePrestationBtn">
+                Nouvelle Prestation
+            </button>
+        </div>
+
+        <div class="prestations-container">
+            <!-- Formulaire de nouvelle prestation -->
+            <div class="prestation-form" style="display: none;">
+                <h2>Nouvelle Prestation</h2>
+                <form id="prestationForm">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Heure de début</label>
+                        <input type="time" name="heureDebut" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Heure de fin</label>
+                        <input type="time" name="heureFin" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Type de prestation</label>
+                        <select name="type" required>
+                            <option value="standard">Standard</option>
+                            <option value="urgence">Urgence</option>
+                            <option value="weekend">Weekend</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="btn-secondary" id="annulerPrestation">
+                            Annuler
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Liste des prestations -->
+            <div class="prestations-list">
+                <h2>Prestations récentes</h2>
+                <div class="prestations-grid" id="prestationsGrid">
+                    <!-- Les prestations seront ajoutées ici -->
+                </div>
+            </div>
+        </div>
+    `;
+
+    initPrestationsEvents();
+}
