@@ -140,3 +140,184 @@ function loadContent(section) {
     console.log(`Chargement de la section: ${section}`);
     // À implémenter : chargement du contenu spécifique à chaque section
 }
+// Modifier la fonction loadContent existante
+function loadContent(section) {
+    const mainContent = document.querySelector('.dashboard-content');
+    
+    switch(section) {
+        case 'employees':
+            loadEmployeesSection(mainContent);
+            break;
+        case 'dashboard':
+            // Recharger le tableau de bord
+            mainContent.innerHTML = getDashboardHTML();
+            loadDashboardData();
+            break;
+        // Les autres sections seront ajoutées plus tard
+    }
+}
+
+// Ajouter cette nouvelle fonction
+function loadEmployeesSection(container) {
+    container.innerHTML = `
+        <div class="section-header">
+            <h1>Gestion des Employés</h1>
+            <button class="btn-primary" id="addEmployeeBtn">
+                <span class="icon">➕</span> Ajouter un employé
+            </button>
+        </div>
+
+        <div class="employee-filters">
+            <div class="search-box">
+                <input type="text" id="employeeSearch" placeholder="Rechercher un employé...">
+            </div>
+            <div class="filter-options">
+                <select id="departmentFilter">
+                    <option value="">Tous les départements</option>
+                    <option value="rh">Ressources Humaines</option>
+                    <option value="tech">Technique</option>
+                    <option value="admin">Administration</option>
+                </select>
+                <select id="statusFilter">
+                    <option value="">Tous les statuts</option>
+                    <option value="active">Actif</option>
+                    <option value="inactive">Inactif</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="employees-grid">
+            <!-- Les employés seront chargés ici dynamiquement -->
+        </div>
+
+        <!-- Modal pour ajouter/éditer un employé -->
+        <div class="modal" id="employeeModal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Ajouter un employé</h2>
+                <form id="employeeForm">
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" name="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Prénom</label>
+                        <input type="text" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Département</label>
+                        <select name="department" required>
+                            <option value="rh">Ressources Humaines</option>
+                            <option value="tech">Technique</option>
+                            <option value="admin">Administration</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date d'embauche</label>
+                        <input type="date" name="hireDate" required>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="btn-secondary" id="cancelEmployee">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+
+    // Charger les données des employés
+    loadEmployeeData();
+    
+    // Mettre en place les gestionnaires d'événements
+    setupEmployeeEventListeners();
+}
+
+// Ajouter ces nouvelles fonctions
+function loadEmployeeData() {
+    // Simulation de données d'employés (à remplacer par un appel API)
+    const mockEmployees = [
+        {
+            id: 1,
+            firstName: 'Jean',
+            lastName: 'Dupont',
+            email: 'jean.dupont@example.com',
+            department: 'tech',
+            status: 'active',
+            hireDate: '2022-03-15'
+        },
+        // Ajoutez d'autres employés ici
+    ];
+
+    const employeesGrid = document.querySelector('.employees-grid');
+    employeesGrid.innerHTML = mockEmployees.map(employee => `
+        <div class="employee-card" data-id="${employee.id}">
+            <div class="employee-avatar">
+                ${employee.firstName[0]}${employee.lastName[0]}
+            </div>
+            <div class="employee-info">
+                <h3>${employee.firstName} ${employee.lastName}</h3>
+                <p>${employee.email}</p>
+                <p class="department">${getDepartmentLabel(employee.department)}</p>
+                <span class="status-badge ${employee.status}">${employee.status}</span>
+            </div>
+            <div class="employee-actions">
+                <button class="btn-icon edit-employee" title="Modifier">✏️</button>
+                <button class="btn-icon delete-employee" title="Supprimer">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function setupEmployeeEventListeners() {
+    const modal = document.getElementById('employeeModal');
+    const addBtn = document.getElementById('addEmployeeBtn');
+    const closeBtn = document.querySelector('.close-modal');
+    const cancelBtn = document.getElementById('cancelEmployee');
+    const searchInput = document.getElementById('employeeSearch');
+    const departmentFilter = document.getElementById('departmentFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const employeeForm = document.getElementById('employeeForm');
+
+    // Ouvrir le modal pour ajouter
+    addBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    // Fermer le modal
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    // Gérer la soumission du formulaire
+    employeeForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Ajouter la logique de sauvegarde ici
+        modal.style.display = 'none';
+    });
+
+    // Filtrage en temps réel
+    searchInput.addEventListener('input', filterEmployees);
+    departmentFilter.addEventListener('change', filterEmployees);
+    statusFilter.addEventListener('change', filterEmployees);
+}
+
+function filterEmployees() {
+    // Implémenter la logique de filtrage ici
+}
+
+function getDepartmentLabel(dept) {
+    const labels = {
+        rh: 'Ressources Humaines',
+        tech: 'Technique',
+        admin: 'Administration'
+    };
+    return labels[dept] || dept;
+}
