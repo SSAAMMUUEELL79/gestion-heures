@@ -105,3 +105,20 @@ button.loading::after {
         transform: translate(-50%, -50%) rotate(360deg);
     }
 }
+/* Ajouter à la fin du fichier existant */
+.reset-step p {
+    margin-bottom: 1.5rem;
+    color: var(--secondary-color);
+    text-align: center;
+}
+
+.password-requirements {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    margin-top: 0.5rem;
+}
+
+.input-group input[type="text"] {
+    letter-spacing: 0.2em;
+    font-family: monospace;
+}
