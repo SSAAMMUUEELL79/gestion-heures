@@ -992,3 +992,116 @@ body {
         max-width: 100%;
     }
 }
+/* Styles pour le workflow et les notifications */
+.workflow-notification {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 1rem;
+    animation: slideIn 0.3s ease-out;
+    z-index: 1000;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.notification-message {
+    color: var(--dark-color);
+}
+
+.close-notification {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--secondary-color);
+}
+
+/* Styles pour l'export PDF */
+.export-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pdf-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.pdf-loading::after {
+    content: '';
+    width: 2rem;
+    height: 2rem;
+    border: 2px solid var(--primary-color);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Styles pour le workflow */
+.workflow-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.step-number {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.step-status {
+    font-size: 0.9rem;
+}
+
+.step-status.completed {
+    color: var(--success-color);
+}
+
+.step-status.pending {
+    color: var(--warning-color);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .workflow-notification {
+        left: 1rem;
+        right: 1rem;
+        top: 1rem;
+    }
+
+    .workflow-status {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
