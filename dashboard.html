@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appipay - Tableau de bord</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="icon.png" type="image/png">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Barre latérale -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="icon.png" alt="Logo" class="logo">
+                <h2>Appipay</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active">
+                    <a href="#dashboard">
+                        <span class="icon">📊</span>
+                        Tableau de bord
+                    </a>
+                </li>
+                <li>
+                    <a href="#employees">
+                        <span class="icon">👥</span>
+                        Employés
+                    </a>
+                </li>
+                <li>
+                    <a href="#time">
+                        <span class="icon">⏰</span>
+                        Pointage
+                    </a>
+                </li>
+                <li>
+                    <a href="#absences">
+                        <span class="icon">📅</span>
+                        Absences
+                    </a>
+                </li>
+                <li>
+                    <a href="#documents">
+                        <span class="icon">📄</span>
+                        Documents
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#settings">
+                    <span class="icon">⚙️</span>
+                    Paramètres
+                </a>
+                <a href="#" id="logoutBtn">
+                    <span class="icon">🚪</span>
+                    Déconnexion
+                </a>
+            </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <input type="search" placeholder="Rechercher...">
+                </div>
+                <div class="user-menu">
+                    <span class="notifications">🔔</span>
+                    <div class="user-profile">
+                        <img src="icon.png" alt="Profile" class="profile-pic">
+                        <span class="username">Utilisateur</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <h1>Tableau de bord</h1>
+                
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <h3>Employés présents</h3>
+                        <p class="stat-number">12/15</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Absences aujourd'hui</h3>
+                        <p class="stat-number">3</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Heures travaillées</h3>
+                        <p class="stat-number">147h</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Demandes en attente</h3>
+                        <p class="stat-number">5</p>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h2>Activité récente</h2>
+                    <div class="activity-list">
+                        <!-- Les activités seront ajoutées dynamiquement via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
