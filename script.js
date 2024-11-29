@@ -1177,3 +1177,187 @@ function showDocumentPreview(docId) {
 
     previewModal.style.display = 'block';
 }
+// Système de validation des signatures
+class SignatureValidator {
+    constructor() {
+        this.certificates = new Map();
+    }
+
+    // Générer un certificat numérique simple
+    generateCertificate(userId) {
+        const certificate = {
+            id: crypto.randomUUID(),
+            userId: userId,
+            createdAt: new Date(),
+            validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Valide 1 an
+            publicKey: `KEY-${Math.random().toString(36).substring(7)}`,
+        };
+        this.certificates.set(certificate.id, certificate);
+        return certificate;
+    }
+
+    // Valider une signature
+    validateSignature(signatureData, certificateId) {
+        const certificate = this.certificates.get(certificateId);
+        if (!certificate) return false;
+        
+        const now = new Date();
+        if (now > certificate.validUntil) {
+            return {
+                valid: false,
+                reason: 'Certificate expired'
+            };
+        }
+
+        return {
+            valid: true,
+            certificate: certificate
+        };
+    }
+}
+
+// Gestionnaire d'historique des signatures
+class SignatureHistory {
+    constructor() {
+        this.history = new Map();
+    }
+
+    // Ajouter une nouvelle signature
+    addSignature(documentId, userId, signatureData, certificate) {
+        const signatureRecord = {
+            id: crypto.randomUUID(),
+            documentId: documentId,
+            userId: userId,
+            timestamp: new Date(),
+            certificateId: certificate.id,
+            signatureData: signatureData
+        };
+
+        if (!this.history.has(documentId)) {
+            this.history.set(documentId, []);
+        }
+        this.history.get(documentId).push(signatureRecord);
+
+        this.updateSignatureDisplay(documentId, signatureRecord);
+        return signatureRecord;
+    }
+
+    // Obtenir l'historique des signatures pour un document
+    getDocumentHistory(documentId) {
+        return this.history.get(documentId) || [];
+    }
+
+    // Mettre à jour l'affichage de l'historique
+    updateSignatureDisplay(documentId, signatureRecord) {
+        const historyContainer = document.querySelector('.signature-history');
+        if (!historyContainer) return;
+
+        const historyEntry = document.createElement('div');
+        historyEntry.className = 'history-entry';
+        historyEntry.innerHTML = `
+            <div class="history-entry-header">
+                <span class="timestamp">${signatureRecord.timestamp.toLocaleString()}</span>
+                <span class="user-info">Signé par: User-${signatureRecord.userId}</span>
+            </div>
+            <div class="signature-preview">
+                <img src="${signatureRecord.signatureData}" alt="Signature" />
+            </div>
+            <div class="certificate-info">
+                <span class="certificate-id">Certificat: ${signatureRecord.certificateId}</span>
+                <button class="btn-icon verify-signature" data-signature-id="${signatureRecord.id}">
+                    ✓ Vérifier
+                </button>
+            </div>
+        `;
+
+        historyContainer.insertBefore(historyEntry, historyContainer.firstChild);
+    }
+}
+
+// Initialiser les systèmes
+const signatureValidator = new SignatureValidator();
+const signatureHistory = new SignatureHistory();
+
+// Modifier la fonction showSignatureModal pour inclure la validation
+function showSignatureModal(documentId) {
+    const modal = document.createElement('div');
+    modal.className = 'modal signature-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Signer le document</h2>
+            <div class="signature-container">
+                <div class="signature-area"></div>
+                <div class="certificate-info">
+                    <p>Un certificat numérique sera généré pour cette signature.</p>
+                </div>
+                <div class="signature-actions">
+                    <button class="btn-secondary" id="clearSignature">Effacer</button>
+                    <button class="btn-primary" id="saveSignature">Signer avec certificat</button>
+                </div>
+            </div>
+            <div class="signature-history">
+                <h3>Historique des signatures</h3>
+                <!-- L'historique sera injecté ici -->
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setupSignatureCanvas(modal, documentId);
+    loadSignatureHistory(documentId);
+    modal.style.display = 'block';
+}
+
+// Fonction pour charger l'historique des signatures
+function loadSignatureHistory(documentId) {
+    const history = signatureHistory.getDocumentHistory(documentId);
+    const container = document.querySelector('.signature-history');
+    
+    if (history.length === 0) {
+        container.innerHTML += '<p>Aucune signature pour ce document</p>';
+        return;
+    }
+
+    history.forEach(record => {
+        signatureHistory.updateSignatureDisplay(documentId, record);
+    });
+}
+
+// Modifier la fonction applySignatureToDocument
+function applySignatureToDocument(documentId, signatureData) {
+    const userId = 'USER-123'; // Simulé - à remplacer par l'ID réel de l'utilisateur
+    const certificate = signatureValidator.generateCertificate(userId);
+    
+    const signatureRecord = signatureHistory.addSignature(
+        documentId,
+        userId,
+        signatureData,
+        certificate
+    );
+
+    // Mettre à jour l'interface
+    const docCard = document.querySelector(`.document-card[data-id="${documentId}"]`);
+    if (docCard) {
+        docCard.classList.add('signed');
+        updateDocumentStatus(docCard, signatureRecord);
+    }
+
+    // Afficher la confirmation
+    showSignatureConfirmation(certificate);
+}
+
+// Fonction pour afficher la confirmation de signature
+function showSignatureConfirmation(certificate) {
+    const confirmation = document.createElement('div');
+    confirmation.className = 'signature-confirmation';
+    confirmation.innerHTML = `
+        <div class="confirmation-content">
+            <h3>✓ Document signé avec succès</h3>
+            <p>Certificat généré: ${certificate.id}</p>
+            <p>Valide jusqu'au: ${certificate.validUntil.toLocaleDateString()}</p>
+            <button class="btn-primary" onclick="this.parentElement.remove()">OK</button>
+        </div>
+    `;
+    document.body.appendChild(confirmation);
+}
