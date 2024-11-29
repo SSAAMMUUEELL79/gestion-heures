@@ -1361,3 +1361,196 @@ function showSignatureConfirmation(certificate) {
     `;
     document.body.appendChild(confirmation);
 }
+// Gestionnaire de workflow de signature
+class SignatureWorkflow {
+    constructor() {
+        this.workflows = new Map();
+        this.currentUser = 'USER-123'; // Simulé
+    }
+
+    // Créer un nouveau workflow
+    createWorkflow(documentId, signers) {
+        const workflow = {
+            id: crypto.randomUUID(),
+            documentId: documentId,
+            status: 'pending',
+            createdAt: new Date(),
+            signers: signers.map((signer, index) => ({
+                userId: signer,
+                order: index + 1,
+                status: 'pending',
+                signedAt: null
+            })),
+            currentStep: 1
+        };
+
+        this.workflows.set(workflow.id, workflow);
+        this.notifyNextSigner(workflow);
+        return workflow;
+    }
+
+    // Mettre à jour le workflow après une signature
+    updateWorkflow(workflowId, userId, signatureData) {
+        const workflow = this.workflows.get(workflowId);
+        if (!workflow) return null;
+
+        const currentSigner = workflow.signers.find(s => 
+            s.order === workflow.currentStep && s.userId === userId);
+
+        if (!currentSigner) return null;
+
+        currentSigner.status = 'completed';
+        currentSigner.signedAt = new Date();
+
+        workflow.currentStep++;
+        
+        if (workflow.currentStep > workflow.signers.length) {
+            workflow.status = 'completed';
+            this.finalizeDocument(workflow.documentId);
+        } else {
+            this.notifyNextSigner(workflow);
+        }
+
+        return workflow;
+    }
+
+    // Notifier le prochain signataire
+    notifyNextSigner(workflow) {
+        const nextSigner = workflow.signers.find(s => s.order === workflow.currentStep);
+        if (nextSigner) {
+            this.sendSignatureNotification(nextSigner.userId, workflow.documentId);
+        }
+    }
+
+    // Simuler l'envoi d'une notification
+    sendSignatureNotification(userId, documentId) {
+        console.log(`Notification envoyée à ${userId} pour le document ${documentId}`);
+        this.showNotification(`En attente de signature de ${userId}`);
+    }
+
+    // Finaliser le document
+    finalizeDocument(documentId) {
+        this.generateSignedPDF(documentId);
+    }
+
+    // Vérifier si l'utilisateur peut signer
+    canUserSign(workflowId, userId) {
+        const workflow = this.workflows.get(workflowId);
+        if (!workflow) return false;
+
+        const currentSigner = workflow.signers.find(s => 
+            s.order === workflow.currentStep && s.userId === userId);
+
+        return !!currentSigner;
+    }
+
+    // Afficher une notification dans l'interface
+    showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'workflow-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-message">${message}</span>
+                <button class="close-notification">×</button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+    }
+}
+
+// Gestionnaire d'export PDF
+class PDFExporter {
+    constructor() {
+        this.signaturePositions = new Map();
+    }
+
+    // Générer le PDF signé
+    async generateSignedPDF(documentId, signatures) {
+        try {
+            // Simulation de génération PDF
+            console.log('Génération du PDF signé...');
+            await this.simulateLoading();
+            
+            const pdfData = {
+                documentId: documentId,
+                signatures: signatures,
+                timestamp: new Date(),
+                certificateInfo: 'PDF signé électroniquement'
+            };
+
+            this.downloadPDF(pdfData);
+            return true;
+        } catch (error) {
+            console.error('Erreur lors de la génération du PDF:', error);
+            return false;
+        }
+    }
+
+    // Simuler le chargement
+    simulateLoading() {
+        return new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    // Télécharger le PDF
+    downloadPDF(pdfData) {
+        const blob = new Blob([JSON.stringify(pdfData)], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `document_signe_${pdfData.documentId}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+}
+
+// Initialiser les gestionnaires
+const workflowManager = new SignatureWorkflow();
+const pdfExporter = new PDFExporter();
+
+// Modifier la fonction de signature pour inclure le workflow
+function initiateSignatureWorkflow(documentId) {
+    const signers = [
+        'USER-123',
+        'USER-456',
+        'USER-789'
+    ];
+
+    const workflow = workflowManager.createWorkflow(documentId, signers);
+    
+    if (workflowManager.canUserSign(workflow.id, workflowManager.currentUser)) {
+        showSignatureModal(documentId, workflow.id);
+    } else {
+        workflowManager.showNotification('Vous n\'êtes pas le signataire actuel');
+    }
+}
+
+// Modifier la fonction applySignatureToDocument
+async function applySignatureToDocument(documentId, signatureData, workflowId) {
+    if (workflowId) {
+        const workflow = workflowManager.updateWorkflow(
+            workflowId, 
+            workflowManager.currentUser, 
+            signatureData
+        );
+
+        if (workflow.status === 'completed') {
+            await pdfExporter.generateSignedPDF(documentId, workflow.signers);
+        }
+    }
+
+    // Mettre à jour l'interface
+    updateDocumentStatus(documentId, 'signed');
+    showSignatureConfirmation();
+}
+
+// Ajouter un bouton d'export dans la prévisualisation
+function addExportButton(documentId) {
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'btn-primary export-btn';
+    exportBtn.innerHTML = '📥 Exporter en PDF';
+    exportBtn.onclick = () => pdfExporter.generateSignedPDF(documentId, []);
+    
+    document.querySelector('.preview-actions').appendChild(exportBtn);
+}
