@@ -759,3 +759,281 @@ function getStatusLabel(status) {
 function formatDate(dateString) {
     return new Date(dateString).toLocaleDateString('fr-FR');
 }
+// Dans la fonction loadContent, ajoutez le case pour les documents
+function loadContent(section) {
+    const mainContent = document.querySelector('.dashboard-content');
+    
+    switch(section) {
+        case 'documents':
+            loadDocumentsSection(mainContent);
+            break;
+        // ... autres cases existants ...
+    }
+}
+
+function loadDocumentsSection(container) {
+    container.innerHTML = `
+        <div class="section-header">
+            <h1>Documents</h1>
+            <div class="header-actions">
+                <button class="btn-primary" id="uploadDocBtn">
+                    <span class="icon">📤</span> Déposer un document
+                </button>
+            </div>
+        </div>
+
+        <div class="documents-container">
+            <!-- Filtres et recherche -->
+            <div class="documents-filters">
+                <div class="search-box">
+                    <input type="text" id="docSearch" placeholder="Rechercher un document...">
+                </div>
+                <div class="filter-group">
+                    <select id="docTypeFilter">
+                        <option value="all">Tous les types</option>
+                        <option value="payslip">Fiches de paie</option>
+                        <option value="contract">Contrats</option>
+                        <option value="certificate">Attestations</option>
+                        <option value="other">Autres</option>
+                    </select>
+                    <select id="docDateFilter">
+                        <option value="all">Toutes les dates</option>
+                        <option value="thisMonth">Ce mois</option>
+                        <option value="lastMonth">Mois dernier</option>
+                        <option value="thisYear">Cette année</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Grille de documents -->
+            <div class="documents-grid" id="documentsGrid">
+                <!-- Les documents seront chargés ici -->
+            </div>
+
+            <!-- Modal d'upload -->
+            <div class="modal" id="uploadModal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h2>Déposer un document</h2>
+                    <form id="uploadForm">
+                        <div class="form-group">
+                            <label>Type de document</label>
+                            <select name="docType" required>
+                                <option value="payslip">Fiche de paie</option>
+                                <option value="contract">Contrat</option>
+                                <option value="certificate">Attestation</option>
+                                <option value="other">Autre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Titre</label>
+                            <input type="text" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea name="description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Fichier</label>
+                            <div class="file-upload-zone" id="dropZone">
+                                <input type="file" id="fileInput" hidden>
+                                <div class="upload-message">
+                                    <span class="icon">📄</span>
+                                    <p>Glissez votre fichier ici ou cliquez pour sélectionner</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn-secondary" id="cancelUpload">Annuler</button>
+                            <button type="submit" class="btn-primary">Déposer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal de prévisualisation -->
+            <div class="modal" id="previewModal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <div class="document-preview">
+                        <h2 id="previewTitle"></h2>
+                        <div class="preview-content" id="previewContent">
+                            <!-- Le contenu de prévisualisation sera chargé ici -->
+                        </div>
+                        <div class="preview-actions">
+                            <button class="btn-primary" id="downloadBtn">Télécharger</button>
+                            <button class="btn-secondary" id="shareBtn">Partager</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    setupDocumentsEvents();
+    loadDocuments();
+}
+
+function setupDocumentsEvents() {
+    const uploadBtn = document.getElementById('uploadDocBtn');
+    const uploadModal = document.getElementById('uploadModal');
+    const previewModal = document.getElementById('previewModal');
+    const closeButtons = document.querySelectorAll('.close-modal');
+    const cancelUpload = document.getElementById('cancelUpload');
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const docSearch = document.getElementById('docSearch');
+    const docTypeFilter = document.getElementById('docTypeFilter');
+    const docDateFilter = document.getElementById('docDateFilter');
+
+    // Gestion du modal d'upload
+    uploadBtn.addEventListener('click', () => {
+        uploadModal.style.display = 'block';
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            uploadModal.style.display = 'none';
+            previewModal.style.display = 'none';
+        });
+    });
+
+    cancelUpload.addEventListener('click', () => {
+        uploadModal.style.display = 'none';
+    });
+
+    // Gestion du drag & drop
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    // Filtres et recherche
+    docSearch.addEventListener('input', filterDocuments);
+    docTypeFilter.addEventListener('change', filterDocuments);
+    docDateFilter.addEventListener('change', filterDocuments);
+}
+
+function loadDocuments() {
+    // Simulation de données
+    const mockDocuments = [
+        {
+            id: 1,
+            type: 'payslip',
+            title: 'Fiche de paie - Mars 2024',
+            date: '2024-03-15',
+            size: '245 KB',
+            status: 'signed'
+        },
+        // Ajoutez d'autres documents
+    ];
+
+    const grid = document.getElementById('documentsGrid');
+    grid.innerHTML = mockDocuments.map(doc => `
+        <div class="document-card" data-id="${doc.id}">
+            <div class="doc-icon">${getDocumentIcon(doc.type)}</div>
+            <div class="doc-info">
+                <h3>${doc.title}</h3>
+                <p class="doc-meta">
+                    <span>${formatDate(doc.date)}</span>
+                    <span>${doc.size}</span>
+                </p>
+            </div>
+            <div class="doc-actions">
+                <button class="btn-icon preview-doc" title="Prévisualiser">👁️</button>
+                <button class="btn-icon download-doc" title="Télécharger">⬇️</button>
+                <button class="btn-icon share-doc" title="Partager">📤</button>
+            </div>
+        </div>
+    `).join('');
+
+    // Ajouter les événements aux boutons d'action
+    setupDocumentActions();
+}
+
+function handleFiles(files) {
+    // Gérer les fichiers uploadés
+    console.log('Fichiers reçus:', files);
+    // Implémenter la logique d'upload
+}
+
+function filterDocuments() {
+    // Implémenter la logique de filtrage
+    console.log('Filtrage des documents...');
+}
+
+function setupDocumentActions() {
+    const previewButtons = document.querySelectorAll('.preview-doc');
+    const downloadButtons = document.querySelectorAll('.download-doc');
+    const shareButtons = document.querySelectorAll('.share-doc');
+
+    previewButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const docId = e.target.closest('.document-card').dataset.id;
+            showDocumentPreview(docId);
+        });
+    });
+
+    downloadButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const docId = e.target.closest('.document-card').dataset.id;
+            downloadDocument(docId);
+        });
+    });
+
+    shareButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const docId = e.target.closest('.document-card').dataset.id;
+            shareDocument(docId);
+        });
+    });
+}
+
+function showDocumentPreview(docId) {
+    const previewModal = document.getElementById('previewModal');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewContent = document.getElementById('previewContent');
+
+    // Simuler le chargement d'un document
+    previewTitle.textContent = 'Prévisualisation du document';
+    previewContent.innerHTML = '<div class="preview-placeholder">Chargement de la prévisualisation...</div>';
+    previewModal.style.display = 'block';
+}
+
+function downloadDocument(docId) {
+    console.log('Téléchargement du document:', docId);
+    // Implémenter la logique de téléchargement
+}
+
+function shareDocument(docId) {
+    console.log('Partage du document:', docId);
+    // Implémenter la logique de partage
+}
+
+function getDocumentIcon(type) {
+    const icons = {
+        payslip: '💰',
+        contract: '📄',
+        certificate: '🎓',
+        other: '📎'
+    };
+    return icons[type] || '📄';
+}
