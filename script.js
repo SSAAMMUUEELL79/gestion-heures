@@ -321,3 +321,198 @@ function getDepartmentLabel(dept) {
     };
     return labels[dept] || dept;
 }
+// Dans la fonction loadContent, ajoutez le case pour le pointage
+function loadContent(section) {
+    const mainContent = document.querySelector('.dashboard-content');
+    
+    switch(section) {
+        case 'time':
+            loadTimeTrackingSection(mainContent);
+            break;
+        // ... autres cases existants ...
+    }
+}
+
+function loadTimeTrackingSection(container) {
+    container.innerHTML = `
+        <div class="section-header">
+            <h1>Pointage</h1>
+            <div class="header-actions">
+                <button class="btn-primary" id="quickPunchBtn">
+                    Pointage rapide
+                </button>
+            </div>
+        </div>
+
+        <div class="time-tracking-container">
+            <div class="time-tracking-cards">
+                <!-- Carte de pointage du jour -->
+                <div class="today-card">
+                    <h2>Aujourd'hui</h2>
+                    <div class="current-time" id="currentTime">--:--:--</div>
+                    <div class="punch-status" id="punchStatus">Non pointé</div>
+                    <div class="punch-buttons">
+                        <button class="btn-success" id="punchInBtn">Pointer l'entrée</button>
+                        <button class="btn-warning" id="punchOutBtn" disabled>Pointer la sortie</button>
+                    </div>
+                    <div class="today-summary">
+                        <div class="time-detail">
+                            <span>Entrée:</span>
+                            <span id="todayPunchIn">--:--</span>
+                        </div>
+                        <div class="time-detail">
+                            <span>Sortie:</span>
+                            <span id="todayPunchOut">--:--</span>
+                        </div>
+                        <div class="time-detail">
+                            <span>Total:</span>
+                            <span id="todayTotal">0h 0min</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Résumé hebdomadaire -->
+                <div class="weekly-summary-card">
+                    <h2>Résumé de la semaine</h2>
+                    <div class="week-progress">
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 60%"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span>24h / 40h</span>
+                        </div>
+                    </div>
+                    <div class="week-details" id="weekDetails">
+                        <!-- Les détails seront ajoutés dynamiquement -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique des pointages -->
+            <div class="time-tracking-history">
+                <h2>Historique des pointages</h2>
+                <div class="history-filters">
+                    <input type="month" id="historyMonth">
+                    <button class="btn-secondary" id="exportTimeBtn">Exporter</button>
+                </div>
+                <div class="history-table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Entrée</th>
+                                <th>Sortie</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timeHistoryBody">
+                            <!-- L'historique sera ajouté dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+
+    setupTimeTrackingEvents();
+    startClock();
+    loadTimeHistory();
+    updateWeekSummary();
+}
+
+function setupTimeTrackingEvents() {
+    const punchInBtn = document.getElementById('punchInBtn');
+    const punchOutBtn = document.getElementById('punchOutBtn');
+    const quickPunchBtn = document.getElementById('quickPunchBtn');
+    const historyMonth = document.getElementById('historyMonth');
+    const exportTimeBtn = document.getElementById('exportTimeBtn');
+
+    punchInBtn.addEventListener('click', () => handlePunchIn());
+    punchOutBtn.addEventListener('click', () => handlePunchOut());
+    quickPunchBtn.addEventListener('click', () => handleQuickPunch());
+    historyMonth.addEventListener('change', () => loadTimeHistory());
+    exportTimeBtn.addEventListener('click', () => exportTimeData());
+}
+
+function startClock() {
+    const updateClock = () => {
+        const now = new Date();
+        document.getElementById('currentTime').textContent = 
+            now.toLocaleTimeString('fr-FR');
+    };
+    
+    updateClock();
+    setInterval(updateClock, 1000);
+}
+
+function handlePunchIn() {
+    const now = new Date();
+    document.getElementById('todayPunchIn').textContent = 
+        now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('punchStatus').textContent = 'En service';
+    document.getElementById('punchInBtn').disabled = true;
+    document.getElementById('punchOutBtn').disabled = false;
+}
+
+function handlePunchOut() {
+    const now = new Date();
+    document.getElementById('todayPunchOut').textContent = 
+        now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('punchStatus').textContent = 'Journée terminée';
+    document.getElementById('punchOutBtn').disabled = true;
+    calculateDailyTotal();
+}
+
+function calculateDailyTotal() {
+    // Simulation du calcul des heures
+    document.getElementById('todayTotal').textContent = '8h 30min';
+}
+
+function loadTimeHistory() {
+    const mockHistory = [
+        {
+            date: '2024-03-18',
+            punchIn: '09:00',
+            punchOut: '17:30',
+            total: '8h 30min',
+            status: 'Complet'
+        },
+        // Ajoutez d'autres entrées d'historique ici
+    ];
+
+    const historyBody = document.getElementById('timeHistoryBody');
+    historyBody.innerHTML = mockHistory.map(entry => `
+        <tr>
+            <td>${new Date(entry.date).toLocaleDateString('fr-FR')}</td>
+            <td>${entry.punchIn}</td>
+            <td>${entry.punchOut}</td>
+            <td>${entry.total}</td>
+            <td><span class="status-badge">${entry.status}</span></td>
+        </tr>
+    `).join('');
+}
+
+function updateWeekSummary() {
+    const weekDetails = document.getElementById('weekDetails');
+    const mockWeekData = [
+        { day: 'Lundi', hours: '8h 30min' },
+        { day: 'Mardi', hours: '8h 15min' },
+        { day: 'Mercredi', hours: '7h 45min' },
+        { day: 'Jeudi', hours: '8h 00min' },
+        { day: 'Vendredi', hours: '0h 00min' }
+    ];
+
+    weekDetails.innerHTML = mockWeekData.map(day => `
+        <div class="day-summary">
+            <span class="day-name">${day.day}</span>
+            <span class="day-hours">${day.hours}</span>
+        </div>
+    `).join('');
+}
+
+function exportTimeData() {
+    alert('Export des données de pointage en cours...');
+    // Implémenter la logique d'export ici
+}
+
