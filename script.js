@@ -515,4 +515,247 @@ function exportTimeData() {
     alert('Export des données de pointage en cours...');
     // Implémenter la logique d'export ici
 }
+// Dans la fonction loadContent, ajoutez le case pour les absences
+function loadContent(section) {
+    const mainContent = document.querySelector('.dashboard-content');
+    
+    switch(section) {
+        case 'absences':
+            loadAbsencesSection(mainContent);
+            break;
+        // ... autres cases existants ...
+    }
+}
 
+function loadAbsencesSection(container) {
+    container.innerHTML = `
+        <div class="section-header">
+            <h1>Gestion des Absences</h1>
+            <button class="btn-primary" id="newAbsenceBtn">
+                <span class="icon">➕</span> Nouvelle demande
+            </button>
+        </div>
+
+        <div class="absences-container">
+            <!-- Résumé des congés -->
+            <div class="leave-summary-cards">
+                <div class="leave-card">
+                    <h3>Congés payés</h3>
+                    <div class="leave-balance">
+                        <span class="balance-number">15</span>
+                        <span class="balance-label">jours restants</span>
+                    </div>
+                    <div class="leave-progress">
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 60%"></div>
+                        </div>
+                        <span>15/25 jours</span>
+                    </div>
+                </div>
+
+                <div class="leave-card">
+                    <h3>RTT</h3>
+                    <div class="leave-balance">
+                        <span class="balance-number">5</span>
+                        <span class="balance-label">jours restants</span>
+                    </div>
+                    <div class="leave-progress">
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 40%"></div>
+                        </div>
+                        <span>5/12 jours</span>
+                    </div>
+                </div>
+
+                <div class="leave-card">
+                    <h3>Maladie</h3>
+                    <div class="leave-balance">
+                        <span class="balance-number">3</span>
+                        <span class="balance-label">jours pris</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendrier des absences -->
+            <div class="absence-calendar">
+                <h2>Calendrier des absences</h2>
+                <div class="calendar-container" id="absenceCalendar">
+                    <!-- Le calendrier sera injecté ici -->
+                </div>
+            </div>
+
+            <!-- Liste des demandes -->
+            <div class="absence-requests">
+                <h2>Mes demandes</h2>
+                <div class="requests-filters">
+                    <select id="statusFilter">
+                        <option value="all">Tous les statuts</option>
+                        <option value="pending">En attente</option>
+                        <option value="approved">Approuvée</option>
+                        <option value="rejected">Refusée</option>
+                    </select>
+                    <select id="typeFilter">
+                        <option value="all">Tous les types</option>
+                        <option value="paid">Congés payés</option>
+                        <option value="rtt">RTT</option>
+                        <option value="sick">Maladie</option>
+                    </select>
+                </div>
+                <div class="requests-table-container">
+                    <table class="requests-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Début</th>
+                                <th>Fin</th>
+                                <th>Durée</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestsTableBody">
+                            <!-- Les demandes seront ajoutées ici -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal nouvelle demande -->
+        <div class="modal" id="absenceModal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Nouvelle demande d'absence</h2>
+                <form id="absenceForm">
+                    <div class="form-group">
+                        <label>Type d'absence</label>
+                        <select name="type" required>
+                            <option value="paid">Congés payés</option>
+                            <option value="rtt">RTT</option>
+                            <option value="sick">Maladie</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date de début</label>
+                        <input type="date" name="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date de fin</label>
+                        <input type="date" name="endDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Commentaire</label>
+                        <textarea name="comment" rows="3"></textarea>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="btn-secondary" id="cancelAbsence">Annuler</button>
+                        <button type="submit" class="btn-primary">Soumettre</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+
+    setupAbsencesEvents();
+    loadAbsenceRequests();
+    initializeCalendar();
+}
+
+function setupAbsencesEvents() {
+    const newAbsenceBtn = document.getElementById('newAbsenceBtn');
+    const modal = document.getElementById('absenceModal');
+    const closeBtn = modal.querySelector('.close-modal');
+    const cancelBtn = document.getElementById('cancelAbsence');
+    const absenceForm = document.getElementById('absenceForm');
+    const statusFilter = document.getElementById('statusFilter');
+    const typeFilter = document.getElementById('typeFilter');
+
+    newAbsenceBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    absenceForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleAbsenceSubmit(e.target);
+    });
+
+    statusFilter.addEventListener('change', loadAbsenceRequests);
+    typeFilter.addEventListener('change', loadAbsenceRequests);
+}
+
+function loadAbsenceRequests() {
+    // Simulation de données
+    const mockRequests = [
+        {
+            type: 'paid',
+            startDate: '2024-03-20',
+            endDate: '2024-03-25',
+            duration: '5 jours',
+            status: 'pending'
+        },
+        // Ajoutez d'autres demandes ici
+    ];
+
+    const tbody = document.getElementById('requestsTableBody');
+    tbody.innerHTML = mockRequests.map(request => `
+        <tr>
+            <td>${getAbsenceTypeLabel(request.type)}</td>
+            <td>${formatDate(request.startDate)}</td>
+            <td>${formatDate(request.endDate)}</td>
+            <td>${request.duration}</td>
+            <td><span class="status-badge ${request.status}">${getStatusLabel(request.status)}</span></td>
+            <td>
+                <button class="btn-icon" title="Voir les détails">👁️</button>
+                ${request.status === 'pending' ? `
+                    <button class="btn-icon" title="Annuler">❌</button>
+                ` : ''}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function initializeCalendar() {
+    // Implémentez ici la logique du calendrier
+    // Vous pouvez utiliser une bibliothèque comme FullCalendar
+    const calendar = document.getElementById('absenceCalendar');
+    calendar.innerHTML = '<p>Calendrier à implémenter</p>';
+}
+
+function handleAbsenceSubmit(form) {
+    const formData = new FormData(form);
+    // Traitement de la demande
+    console.log(Object.fromEntries(formData));
+    document.getElementById('absenceModal').style.display = 'none';
+}
+
+function getAbsenceTypeLabel(type) {
+    const labels = {
+        paid: 'Congés payés',
+        rtt: 'RTT',
+        sick: 'Maladie',
+        other: 'Autre'
+    };
+    return labels[type] || type;
+}
+
+function getStatusLabel(status) {
+    const labels = {
+        pending: 'En attente',
+        approved: 'Approuvée',
+        rejected: 'Refusée'
+    };
+    return labels[status] || status;
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('fr-FR');
+}
