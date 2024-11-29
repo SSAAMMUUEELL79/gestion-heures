@@ -1,1 +1,34 @@
-
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appipay - Connexion</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="auth-style.css">
+    <link rel="icon" href="icon.png" type="image/png">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <img src="icon.png" alt="Logo" class="auth-logo">
+            <h1>Connexion Appipay</h1>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="email" id="email" required placeholder="Email">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" required placeholder="Mot de passe">
+                </div>
+                <button type="submit">Se connecter</button>
+            </form>
+            
+            <div class="auth-links">
+                <a href="#" id="forgotPassword">Mot de passe oublié ?</a>
+            </div>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+</body>
+</html>
