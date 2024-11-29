@@ -554,4 +554,120 @@ body {
         grid-template-columns: 1fr;
     }
 }
+/* Styles pour la section Absences */
+.absences-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
 
+.leave-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.leave-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.leave-balance {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.balance-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    display: block;
+}
+
+.balance-label {
+    color: var(--secondary-color);
+}
+
+.leave-progress {
+    margin-top: 1rem;
+}
+
+.absence-calendar {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.calendar-container {
+    min-height: 300px;
+    margin-top: 1rem;
+}
+
+.absence-requests {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.requests-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.requests-filters select {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.requests-table-container {
+    overflow-x: auto;
+}
+
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.requests-table th,
+.requests-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.status-badge.pending {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.status-badge.approved {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.status-badge.rejected {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .leave-summary-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .requests-filters {
+        flex-direction: column;
+    }
+}
