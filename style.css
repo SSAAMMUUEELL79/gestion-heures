@@ -153,3 +153,74 @@ body {
         margin-left: 60px;
     }
 }
+/* Ajouter à la fin du fichier style.css */
+
+/* Styles des notifications */
+.notifications {
+    position: relative;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.notifications[data-count]:after {
+    content: attr(data-count);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--danger-color);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+.notification-popup {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 1rem;
+    min-width: 300px;
+    z-index: 1000;
+}
+
+.notification-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background-color: var(--light-color);
+}
+
+.activity-item {
+    display: flex;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-time {
+    color: var(--secondary-color);
+    margin-right: 1rem;
+    min-width: 60px;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.notification-popup {
+    animation: slideIn 0.3s ease-out;
+}
+
