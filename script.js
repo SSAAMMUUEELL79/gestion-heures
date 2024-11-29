@@ -1037,3 +1037,143 @@ function getDocumentIcon(type) {
     };
     return icons[type] || '📄';
 }
+// Ajouter ces nouvelles fonctions
+function initializeSignatureSystem() {
+    const signatureCanvas = document.createElement('canvas');
+    signatureCanvas.id = 'signatureCanvas';
+    signatureCanvas.width = 500;
+    signatureCanvas.height = 200;
+    
+    let isDrawing = false;
+    let ctx = signatureCanvas.getContext('2d');
+    
+    // Configuration du canvas
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+
+    // Événements de dessin
+    signatureCanvas.addEventListener('mousedown', startDrawing);
+    signatureCanvas.addEventListener('mousemove', draw);
+    signatureCanvas.addEventListener('mouseup', stopDrawing);
+    signatureCanvas.addEventListener('mouseout', stopDrawing);
+
+    // Événements tactiles
+    signatureCanvas.addEventListener('touchstart', startDrawing);
+    signatureCanvas.addEventListener('touchmove', draw);
+    signatureCanvas.addEventListener('touchend', stopDrawing);
+
+    function startDrawing(e) {
+        isDrawing = true;
+        draw(e);
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        
+        e.preventDefault();
+        const rect = signatureCanvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+        ctx.beginPath();
+    }
+
+    return signatureCanvas;
+}
+
+function showSignatureModal(documentId) {
+    const modal = document.createElement('div');
+    modal.className = 'modal signature-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Signer le document</h2>
+            <div class="signature-container">
+                <div class="signature-area"></div>
+                <div class="signature-actions">
+                    <button class="btn-secondary" id="clearSignature">Effacer</button>
+                    <button class="btn-primary" id="saveSignature">Signer</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    const signatureArea = modal.querySelector('.signature-area');
+    const canvas = initializeSignatureSystem();
+    signatureArea.appendChild(canvas);
+
+    const clearBtn = modal.querySelector('#clearSignature');
+    const saveBtn = modal.querySelector('#saveSignature');
+    const closeBtn = modal.querySelector('.close-modal');
+
+    clearBtn.addEventListener('click', () => {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    saveBtn.addEventListener('click', () => {
+        const signatureData = canvas.toDataURL();
+        applySignatureToDocument(documentId, signatureData);
+        modal.remove();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        modal.remove();
+    });
+
+    modal.style.display = 'block';
+}
+
+function applySignatureToDocument(documentId, signatureData) {
+    // Simulation d'envoi de la signature au serveur
+    console.log(`Signature appliquée au document ${documentId}`);
+    
+    // Mettre à jour l'interface
+    const docCard = document.querySelector(`.document-card[data-id="${documentId}"]`);
+    if (docCard) {
+        docCard.classList.add('signed');
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'status-badge signed';
+        statusBadge.textContent = 'Signé';
+        docCard.querySelector('.doc-info').appendChild(statusBadge);
+    }
+}
+
+// Modifier la fonction showDocumentPreview pour inclure la prévisualisation PDF
+function showDocumentPreview(docId) {
+    const previewModal = document.getElementById('previewModal');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewContent = document.getElementById('previewContent');
+
+    // Simuler le chargement d'un document
+    previewTitle.textContent = 'Prévisualisation du document';
+    previewContent.innerHTML = `
+        <div class="preview-toolbar">
+            <button class="btn-icon" id="zoomIn">🔍+</button>
+            <button class="btn-icon" id="zoomOut">🔍-</button>
+            <button class="btn-icon" id="rotate">🔄</button>
+            <button class="btn-primary" id="signDoc">Signer</button>
+        </div>
+        <div class="preview-document">
+            <iframe src="about:blank" id="pdfViewer"></iframe>
+        </div>
+    `;
+
+    // Ajouter les événements de la barre d'outils
+    const signBtn = previewContent.querySelector('#signDoc');
+    signBtn.addEventListener('click', () => {
+        showSignatureModal(docId);
+    });
+
+    previewModal.style.display = 'block';
+}
