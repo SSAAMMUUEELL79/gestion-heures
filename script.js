@@ -2365,3 +2365,223 @@ class InterfaceManager {
 // Initialiser le gestionnaire d'interface
 const interfaceManager = new InterfaceManager();
 interfaceManager.init();
+// Gestionnaire de configuration
+class ConfigManager {
+    constructor() {
+        this.config = this.loadConfig();
+    }
+
+    // Charger la configuration
+    loadConfig() {
+        const defaultConfig = {
+            horairesTravail: {
+                debut: '09:00',
+                fin: '17:00',
+                pauseDejeuner: 60, // minutes
+            },
+            tarifHoraire: {
+                standard: 25,
+                urgence: 35,
+                weekend: 40
+            },
+            notifications: {
+                enabled: true,
+                sound: true,
+                desktop: true
+            },
+            exportFormat: {
+                dateFormat: 'DD/MM/YYYY',
+                devise: '€',
+                decimales: 2
+            },
+            backup: {
+                autoSave: true,
+                frequency: 'daily'
+            }
+        };
+
+        const savedConfig = localStorage.getItem('appConfig');
+        return savedConfig ? { ...defaultConfig, ...JSON.parse(savedConfig) } : defaultConfig;
+    }
+
+    // Sauvegarder la configuration
+    saveConfig() {
+        localStorage.setItem('appConfig', JSON.stringify(this.config));
+    }
+
+    // Mettre à jour la configuration
+    updateConfig(newConfig) {
+        this.config = { ...this.config, ...newConfig };
+        this.saveConfig();
+        this.applyConfig();
+    }
+
+    // Appliquer la configuration
+    applyConfig() {
+        // Appliquer les horaires
+        prestationManager.setTarifs(this.config.tarifHoraire);
+        
+        // Appliquer les notifications
+        if (this.config.notifications.enabled) {
+            this.setupNotifications();
+        }
+
+        // Appliquer le format d'export
+        exportManager.setFormat(this.config.exportFormat);
+    }
+
+    // Configuration des notifications
+    setupNotifications() {
+        if (this.config.notifications.desktop && 'Notification' in window) {
+            Notification.requestPermission();
+        }
+    }
+}
+
+// Interface des paramètres
+function afficherParametres() {
+    const container = document.querySelector('.dashboard-content');
+    container.innerHTML = `
+        <div class="section-header">
+            <h1>Paramètres</h1>
+        </div>
+
+        <div class="settings-container">
+            <!-- Horaires de travail -->
+            <div class="settings-section">
+                <h2>Horaires de travail</h2>
+                <form id="horairesForm">
+                    <div class="form-group">
+                        <label>Heure de début</label>
+                        <input type="time" name="heureDebut" 
+                               value="${configManager.config.horairesTravail.debut}">
+                    </div>
+                    <div class="form-group">
+                        <label>Heure de fin</label>
+                        <input type="time" name="heureFin" 
+                               value="${configManager.config.horairesTravail.fin}">
+                    </div>
+                    <div class="form-group">
+                        <label>Pause déjeuner (minutes)</label>
+                        <input type="number" name="pauseDejeuner" 
+                               value="${configManager.config.horairesTravail.pauseDejeuner}">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tarifs -->
+            <div class="settings-section">
+                <h2>Tarifs horaires</h2>
+                <form id="tarifsForm">
+                    <div class="form-group">
+                        <label>Standard (€/h)</label>
+                        <input type="number" name="tarifStandard" 
+                               value="${configManager.config.tarifHoraire.standard}">
+                    </div>
+                    <div class="form-group">
+                        <label>Urgence (€/h)</label>
+                        <input type="number" name="tarifUrgence" 
+                               value="${configManager.config.tarifHoraire.urgence}">
+                    </div>
+                    <div class="form-group">
+                        <label>Weekend (€/h)</label>
+                        <input type="number" name="tarifWeekend" 
+                               value="${configManager.config.tarifHoraire.weekend}">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Notifications -->
+            <div class="settings-section">
+                <h2>Notifications</h2>
+                <form id="notificationsForm">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="notifEnabled" 
+                                   ${configManager.config.notifications.enabled ? 'checked' : ''}>
+                            Activer les notifications
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="notifSound" 
+                                   ${configManager.config.notifications.sound ? 'checked' : ''}>
+                            Son des notifications
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="notifDesktop" 
+                                   ${configManager.config.notifications.desktop ? 'checked' : ''}>
+                            Notifications bureau
+                        </label>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Export -->
+            <div class="settings-section">
+                <h2>Format d'export</h2>
+                <form id="exportForm">
+                    <div class="form-group">
+                        <label>Format de date</label>
+                        <select name="dateFormat">
+                            <option value="DD/MM/YYYY" 
+                                    ${configManager.config.exportFormat.dateFormat === 'DD/MM/YYYY' ? 'selected' : ''}>
+                                JJ/MM/AAAA
+                            </option>
+                            <option value="YYYY-MM-DD" 
+                                    ${configManager.config.exportFormat.dateFormat === 'YYYY-MM-DD' ? 'selected' : ''}>
+                                AAAA-MM-JJ
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre de décimales</label>
+                        <input type="number" name="decimales" min="0" max="4" 
+                               value="${configManager.config.exportFormat.decimales}">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Sauvegarde -->
+            <div class="settings-section">
+                <h2>Sauvegarde</h2>
+                <form id="backupForm">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="autoSave" 
+                                   ${configManager.config.backup.autoSave ? 'checked' : ''}>
+                            Sauvegarde automatique
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Fréquence</label>
+                        <select name="frequency">
+                            <option value="daily" 
+                                    ${configManager.config.backup.frequency === 'daily' ? 'selected' : ''}>
+                                Quotidienne
+                            </option>
+                            <option value="weekly" 
+                                    ${configManager.config.backup.frequency === 'weekly' ? 'selected' : ''}>
+                                Hebdomadaire
+                            </option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Actions -->
+            <div class="settings-actions">
+                <button class="btn-secondary" onclick="reinitialiserParametres()">
+                    Réinitialiser
+                </button>
+                <button class="btn-primary" onclick="sauvegarderParametres()">
+                    Enregistrer
+                </button>
+            </div>
+        </div>
+    `;
+
+    initSettingsEvents();
+}
