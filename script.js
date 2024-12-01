@@ -2176,3 +2176,192 @@ function initGraphiques() {
         }
     });
 }
+// Gestionnaire d'interface améliorée
+class InterfaceManager {
+    constructor() {
+        this.theme = localStorage.getItem('theme') || 'light';
+        this.sidebarState = localStorage.getItem('sidebarState') || 'expanded';
+    }
+
+    // Initialiser l'interface
+    init() {
+        this.initThemeToggle();
+        this.initSidebar();
+        this.initSearchBar();
+        this.initNotifications();
+        this.initShortcuts();
+    }
+
+    // Gestionnaire de thème
+    initThemeToggle() {
+        const themeToggle = document.createElement('div');
+        themeToggle.className = 'theme-toggle';
+        themeToggle.innerHTML = `
+            <button class="btn-icon" id="themeToggle">
+                <span class="theme-icon">🌓</span>
+            </button>
+        `;
+
+        document.querySelector('.sidebar-header').appendChild(themeToggle);
+        
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            this.toggleTheme();
+        });
+
+        // Appliquer le thème initial
+        document.body.classList.add(this.theme);
+    }
+
+    // Barre de recherche globale
+    initSearchBar() {
+        const searchBar = document.createElement('div');
+        searchBar.className = 'search-bar';
+        searchBar.innerHTML = `
+            <input type="text" placeholder="Rechercher..." id="globalSearch">
+            <div class="search-results" style="display: none;"></div>
+        `;
+
+        document.querySelector('.main-content').prepend(searchBar);
+        
+        this.initSearchEvents();
+    }
+
+    // Système de notifications
+    initNotifications() {
+        const notifButton = document.createElement('div');
+        notifButton.className = 'notifications-toggle';
+        notifButton.innerHTML = `
+            <button class="btn-icon" id="notifToggle">
+                <span class="notif-icon">🔔</span>
+                <span class="notif-badge">0</span>
+            </button>
+            <div class="notifications-panel" style="display: none;">
+                <div class="notif-header">
+                    <h3>Notifications</h3>
+                    <button class="btn-text" id="markAllRead">Tout marquer comme lu</button>
+                </div>
+                <div class="notif-list"></div>
+            </div>
+        `;
+
+        document.querySelector('.sidebar-header').appendChild(notifButton);
+        this.initNotificationEvents();
+    }
+
+    // Raccourcis clavier
+    initShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Alt + P = Nouvelle prestation
+            if (e.altKey && e.key === 'p') {
+                e.preventDefault();
+                this.showQuickAdd('prestation');
+            }
+            // Alt + T = Pointer
+            if (e.altKey && e.key === 't') {
+                e.preventDefault();
+                this.quickPointage();
+            }
+            // Alt + R = Rapport rapide
+            if (e.altKey && e.key === 'r') {
+                e.preventDefault();
+                this.generateQuickReport();
+            }
+        });
+    }
+
+    // Ajout rapide
+    showQuickAdd(type) {
+        const modal = document.createElement('div');
+        modal.className = 'quick-add-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3>Ajout rapide - ${type}</h3>
+                <form id="quickAddForm">
+                    <!-- Les champs seront générés dynamiquement -->
+                </form>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        this.generateQuickAddFields(type);
+    }
+
+    // Génération de rapport rapide
+    generateQuickReport() {
+        const today = new Date();
+        const report = {
+            date: today.toISOString().split('T')[0],
+            prestations: prestationManager.prestations.filter(p => p.date === today.toISOString().split('T')[0]),
+            pointages: pointageManager.pointages.filter(p => p.date === today.toISOString().split('T')[0]),
+            stats: statistiquesManager.getStatistiques()
+        };
+
+        this.showReportPreview(report);
+    }
+
+    // Mise à jour de l'interface
+    updateUI() {
+        this.updateNotificationBadge();
+        this.updateThemeIcon();
+        this.refreshDashboard();
+    }
+
+    // Animations fluides
+    animateElement(element, animation) {
+        element.style.animation = animation;
+        element.addEventListener('animationend', () => {
+            element.style.animation = '';
+        }, { once: true });
+    }
+
+    // Gestion des erreurs UI
+    showError(message, duration = 5000) {
+        const errorToast = document.createElement('div');
+        errorToast.className = 'error-toast';
+        errorToast.textContent = message;
+
+        document.body.appendChild(errorToast);
+        setTimeout(() => {
+            errorToast.remove();
+        }, duration);
+    }
+
+    // Sauvegarde automatique
+    enableAutoSave(form) {
+        let timeout;
+        form.addEventListener('input', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                this.saveFormData(form);
+            }, 1000);
+        });
+    }
+
+    // Gestion du drag & drop
+    initDragAndDrop() {
+        const draggables = document.querySelectorAll('.draggable');
+        const containers = document.querySelectorAll('.drag-container');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', () => {
+                draggable.classList.add('dragging');
+            });
+
+            draggable.addEventListener('dragend', () => {
+                draggable.classList.remove('dragging');
+            });
+        });
+
+        containers.forEach(container => {
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                const draggable = document.querySelector('.dragging');
+                container.appendChild(draggable);
+            });
+        });
+    }
+}
+
+// Initialiser le gestionnaire d'interface
+const interfaceManager = new InterfaceManager();
+interfaceManager.init();
