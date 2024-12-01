@@ -1,44 +1,52 @@
-class LoginManager {
-    constructor() {
-        this.initEvents();
-    }
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - AppliPay</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>AppliPay</h1>
+                <p>Gestion des prestations et pointages</p>
+            </div>
 
-    initEvents() {
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleLogin();
-        });
-    }
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
 
-    handleLogin() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
 
-        // Simulation de connexion simple
-        if (email && password) {
-            // Stocker l'état de connexion
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userEmail', email);
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember">
+                        Se souvenir de moi
+                    </label>
+                    <a href="#" class="forgot-password">Mot de passe oublié ?</a>
+                </div>
 
-            // Redirection vers index.html
-            window.location.href = 'index.html';
-        } else {
-            this.showError('Veuillez remplir tous les champs');
-        }
-    }
+                <button type="submit" class="btn-primary btn-login">
+                    Se connecter
+                </button>
+            </form>
 
-    showError(message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'login-error';
-        errorDiv.textContent = message;
+            <div class="login-footer">
+                <p>Première connexion ?</p>
+                <button class="btn-secondary" onclick="showRegisterForm()">
+                    Créer un compte
+                </button>
+            </div>
+        </div>
+    </div>
 
-        const form = document.getElementById('loginForm');
-        form.insertBefore(errorDiv, form.firstChild);
-
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 3000);
-    }
-}
-
-const loginManager = new LoginManager();
+    <script src="login.js"></script>
+</body>
+</html>
