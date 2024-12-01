@@ -3,32 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appipay - Connexion</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="auth-style.css">
-    <link rel="icon" href="icon.png" type="image/png">
+    <title>AppliPay - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-box">
-            <img src="icon.png" alt="Logo" class="auth-logo">
-            <h1>Connexion Appipay</h1>
-            
-            <form id="loginForm">
-                <div class="input-group">
-                    <input type="email" id="email" required placeholder="Email">
+    <script>
+        // Vérifier si l'utilisateur est connecté
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <img src="icon.png" alt="Logo" class="logo">
+            <h2>AppliPay</h2>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="active">
+                <a href="#dashboard">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#prestations">
+                    <span class="icon">📝</span>
+                    <span>Prestations</span>
+                </a>
+            </li>
+            <li>
+                <a href="#pointage">
+                    <span class="icon">⏰</span>
+                    <span>Pointage</span>
+                </a>
+            </li>
+            <li>
+                <a href="#statistiques">
+                    <span class="icon">📈</span>
+                    <span>Statistiques</span>
+                </a>
+            </li>
+            <li>
+                <a href="#parametres">
+                    <span class="icon">⚙️</span>
+                    <span>Paramètres</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button onclick="logout()" class="btn-logout">
+                <span class="icon">🚪</span>
+                <span>Déconnexion</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1>Tableau de bord</h1>
+            <div class="user-info">
+                <span class="user-name"></span>
+                <img src="icon.png" alt="Profile" class="profile-pic">
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Section Prestations -->
+            <div class="section prestations-section">
+                <div class="section-header">
+                    <h2>Prestations</h2>
+                    <button class="btn-primary" onclick="showAddPrestationForm()">
+                        Nouvelle prestation
+                    </button>
                 </div>
-                <div class="input-group">
-                    <input type="password" id="password" required placeholder="Mot de passe">
+
+                <div class="prestations-list" id="prestationsList">
+                    <!-- Les prestations seront ajoutées ici dynamiquement -->
                 </div>
-                <button type="submit">Se connecter</button>
-            </form>
-            
-            <div class="auth-links">
-                <a href="#" id="forgotPassword">Mot de passe oublié ?</a>
+            </div>
+
+            <!-- Section Pointage -->
+            <div class="section pointage-section">
+                <div class="section-header">
+                    <h2>Pointage du jour</h2>
+                    <div class="current-time" id="currentTime"></div>
+                </div>
+
+                <div class="pointage-actions">
+                    <button class="btn-success" id="btnPointage" onclick="togglePointage()">
+                        Pointer l'entrée
+                    </button>
+                </div>
+
+                <div class="pointage-status" id="pointageStatus">
+                    Non pointé
+                </div>
+            </div>
+
+            <!-- Section Statistiques -->
+            <div class="section stats-section">
+                <h2>Statistiques</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Prestations du mois</h3>
+                        <div class="stat-value" id="prestationsMois">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Heures travaillées</h3>
+                        <div class="stat-value" id="heuresTravaillees">0h</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Revenus du mois</h3>
+                        <div class="stat-value" id="revenusMois">0 €</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <script src="auth.js"></script>
+
+    <!-- Modal Ajout Prestation -->
+    <div class="modal" id="addPrestationModal">
+        <div class="modal-content">
+            <h2>Nouvelle prestation</h2>
+            <form id="prestationForm">
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="heureDebut">Heure de début</label>
+                    <input type="time" id="heureDebut" required>
+                </div>
+                <div class="form-group">
+                    <label for="heureFin">Heure de fin</label>
+                    <input type="time" id="heureFin" required>
+                </div>
+                <div class="form-group">
+                    <label for="type">Type de prestation</label>
+                    <select id="type" required>
+                        <option value="standard">Standard</option>
+                        <option value="urgence">Urgence</option>
+                        <option value="weekend">Weekend</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        Ajouter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
 </body>
 </html>
