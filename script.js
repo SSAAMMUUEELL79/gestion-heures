@@ -1667,3 +1667,213 @@ function afficherGestionPrestations() {
 
     initPrestationsEvents();
 }
+// Ajoutez ces nouvelles méthodes à la classe PrestationManager
+class PrestationManager {
+    // ... code existant ...
+
+    // Éditer une prestation existante
+    editerPrestation(id, nouvelleDonnees) {
+        const index = this.prestations.findIndex(p => p.id === id);
+        if (index !== -1) {
+            nouvelleDonnees.id = id;
+            nouvelleDonnees.montant = this.calculerMontant(nouvelleDonnees);
+            this.prestations[index] = nouvelleDonnees;
+            this.sauvegarderPrestations();
+            return true;
+        }
+        return false;
+    }
+
+    // Supprimer une prestation
+    supprimerPrestation(id) {
+        const index = this.prestations.findIndex(p => p.id === id);
+        if (index !== -1) {
+            this.prestations.splice(index, 1);
+            this.sauvegarderPrestations();
+            return true;
+        }
+        return false;
+    }
+
+    // Filtrer les prestations
+    filtrerPrestations(filtres) {
+        return this.prestations.filter(p => {
+            let match = true;
+            
+            // Filtre par date
+            if (filtres.dateDebut && filtres.dateFin) {
+                const date = new Date(p.date);
+                const debut = new Date(filtres.dateDebut);
+                const fin = new Date(filtres.dateFin);
+                match = match && (date >= debut && date <= fin);
+            }
+
+            // Filtre par type
+            if (filtres.type && filtres.type !== 'tous') {
+                match = match && p.type === filtres.type;
+            }
+
+            // Filtre par montant
+            if (filtres.montantMin) {
+                match = match && p.montant >= parseFloat(filtres.montantMin);
+            }
+            if (filtres.montantMax) {
+                match = match && p.montant <= parseFloat(filtres.montantMax);
+            }
+
+            return match;
+        });
+    }
+
+    // Exporter les prestations
+    exporterPrestations(format = 'excel') {
+        const donnees = this.prestations.map(p => ({
+            Date: new Date(p.date).toLocaleDateString(),
+            'Heure début': p.heureDebut,
+            'Heure fin': p.heureFin,
+            Type: p.type,
+            Description: p.description,
+            Montant: `${p.montant.toFixed(2)} €`
+        }));
+
+        if (format === 'excel') {
+            this.exporterExcel(donnees);
+        } else if (format === 'pdf') {
+            this.exporterPDF(donnees);
+        }
+    }
+
+    // Export Excel
+    exporterExcel(donnees) {
+        let csv = Object.keys(donnees[0]).join(',') + '\n';
+        csv += donnees.map(row => Object.values(row).join(',')).join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `prestations_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+    }
+
+    // Export PDF
+    exporterPDF(donnees) {
+        // Simulation d'export PDF
+        console.log('Export PDF:', donnees);
+        alert('Export PDF en cours de développement');
+    }
+}
+
+// Fonctions d'interface utilisateur pour l'édition
+function afficherFormulaireEdition(prestation) {
+    const form = document.querySelector('.prestation-form');
+    form.innerHTML = `
+        <h2>Modifier la prestation</h2>
+        <form id="prestationForm" data-id="${prestation.id}">
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" name="date" value="${prestation.date}" required>
+            </div>
+            <div class="form-group">
+                <label>Heure de début</label>
+                <input type="time" name="heureDebut" value="${prestation.heureDebut}" required>
+            </div>
+            <div class="form-group">
+                <label>Heure de fin</label>
+                <input type="time" name="heureFin" value="${prestation.heureFin}" required>
+            </div>
+            <div class="form-group">
+                <label>Type de prestation</label>
+                <select name="type" required>
+                    <option value="standard" ${prestation.type === 'standard' ? 'selected' : ''}>Standard</option>
+                    <option value="urgence" ${prestation.type === 'urgence' ? 'selected' : ''}>Urgence</option>
+                    <option value="weekend" ${prestation.type === 'weekend' ? 'selected' : ''}>Weekend</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description">${prestation.description || ''}</textarea>
+            </div>
+            <div class="form-buttons">
+                <button type="button" class="btn-secondary" onclick="annulerEdition()">Annuler</button>
+                <button type="submit" class="btn-primary">Mettre à jour</button>
+            </div>
+        </form>
+    `;
+    form.style.display = 'block';
+    initFormEvents();
+}
+
+// Barre de filtres
+function ajouterBarreFiltres() {
+    const filtres = document.createElement('div');
+    filtres.className = 'prestations-filtres';
+    filtres.innerHTML = `
+        <div class="filtre-groupe">
+            <label>Période</label>
+            <input type="date" id="dateDebut" name="dateDebut">
+            <input type="date" id="dateFin" name="dateFin">
+        </div>
+        <div class="filtre-groupe">
+            <label>Type</label>
+            <select id="typeFiltre">
+                <option value="tous">Tous</option>
+                <option value="standard">Standard</option>
+                <option value="urgence">Urgence</option>
+                <option value="weekend">Weekend</option>
+            </select>
+        </div>
+        <div class="filtre-groupe">
+            <label>Montant</label>
+            <input type="number" id="montantMin" placeholder="Min €">
+            <input type="number" id="montantMax" placeholder="Max €">
+        </div>
+        <div class="filtre-actions">
+            <button class="btn-secondary" onclick="reinitialiserFiltres()">Réinitialiser</button>
+            <button class="btn-primary" onclick="appliquerFiltres()">Filtrer</button>
+        </div>
+    `;
+    return filtres;
+}
+
+// Événements des filtres
+function initFiltresEvents() {
+    const filtres = document.querySelectorAll('.prestations-filtres input, .prestations-filtres select');
+    filtres.forEach(filtre => {
+        filtre.addEventListener('change', appliquerFiltres);
+    });
+}
+
+function appliquerFiltres() {
+    const filtres = {
+        dateDebut: document.getElementById('dateDebut').value,
+        dateFin: document.getElementById('dateFin').value,
+        type: document.getElementById('typeFiltre').value,
+        montantMin: document.getElementById('montantMin').value,
+        montantMax: document.getElementById('montantMax').value
+    };
+
+    const prestationsFiltrees = prestationManager.filtrerPrestations(filtres);
+    afficherPrestations(prestationsFiltrees);
+}
+
+function reinitialiserFiltres() {
+    document.querySelectorAll('.prestations-filtres input, .prestations-filtres select').forEach(input => {
+        input.value = '';
+    });
+    afficherPrestations(prestationManager.prestations);
+}
+
+// Boutons d'export
+function ajouterBoutonsExport() {
+    const exportButtons = document.createElement('div');
+    exportButtons.className = 'export-buttons';
+    exportButtons.innerHTML = `
+        <button class="btn-secondary" onclick="prestationManager.exporterPrestations('excel')">
+            📊 Exporter Excel
+        </button>
+        <button class="btn-secondary" onclick="prestationManager.exporterPrestations('pdf')">
+            📄 Exporter PDF
+        </button>
+    `;
+    return exportButtons;
+}
