@@ -1,3 +1,72 @@
+// Gestion de la navigation
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des clics sur le menu
+    const menuItems = document.querySelectorAll('.sidebar-menu li');
+    const pages = document.querySelectorAll('.page-section');
+
+    menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Retirer la classe active de tous les éléments
+            menuItems.forEach(i => i.classList.remove('active'));
+            pages.forEach(p => p.classList.remove('active'));
+
+            // Ajouter la classe active à l'élément cliqué
+            this.classList.add('active');
+
+            // Afficher la page correspondante
+            const pageId = this.getAttribute('data-page') + '-page';
+            document.getElementById(pageId).classList.add('active');
+        });
+    });
+
+    // Bouton d'ajout de prestation
+    const addPrestationBtn = document.createElement('button');
+    addPrestationBtn.className = 'btn-primary';
+    addPrestationBtn.innerHTML = '+ Nouvelle prestation';
+    addPrestationBtn.onclick = function() {
+        const modal = document.getElementById('addPrestationModal');
+        modal.style.display = 'flex';
+    };
+
+    // Ajouter le bouton à la page des prestations
+    const prestationsPage = document.getElementById('prestations-page');
+    if (prestationsPage) {
+        prestationsPage.insertBefore(addPrestationBtn, prestationsPage.firstChild);
+    }
+
+    // Initialiser l'heure
+    updateCurrentTime();
+});
+
+// Mise à jour de l'heure
+function updateCurrentTime() {
+    const timeElement = document.getElementById('currentTime');
+    if (timeElement) {
+        const now = new Date();
+        timeElement.textContent = now.toLocaleTimeString('fr-FR');
+        setTimeout(updateCurrentTime, 1000);
+    }
+}
+
+// Gestion du pointage
+function togglePointage() {
+    const btnPointage = document.getElementById('btnPointage');
+    const statusPointage = document.getElementById('pointageStatus');
+    
+    if (btnPointage.textContent === 'Pointer l\'entrée') {
+        btnPointage.textContent = 'Pointer la sortie';
+        btnPointage.classList.remove('btn-success');
+        btnPointage.classList.add('btn-warning');
+        statusPointage.textContent = 'En cours';
+        statusPointage.style.color = '#2196F3';
+    } else {
+        btnPointage.textContent = 'Pointer l\'entrée';
+        btnPointage.classList.remove('btn-warning');
+        btnPointage.classList.add('btn-success');
+        statusPointage.textContent = 'Terminé';
+        statusPointage.style.color = '#4CAF50';
+    }
+}
 // Gestionnaire principal de l'application
 class AppManager {
     constructor() {
