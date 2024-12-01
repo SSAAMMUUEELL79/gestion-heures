@@ -117,3 +117,47 @@ function handleRegister() {
     // Redirection vers l'application
     window.location.href = 'index.html';
 }
+class LoginManager {
+    constructor() {
+        this.initEvents();
+    }
+
+    initEvents() {
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleLogin();
+        });
+    }
+
+    handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Simulation de connexion simple
+        if (email && password) {
+            // Stocker l'état de connexion
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userEmail', email);
+
+            // Redirection vers index.html
+            window.location.href = 'index.html';
+        } else {
+            this.showError('Veuillez remplir tous les champs');
+        }
+    }
+
+    showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'login-error';
+        errorDiv.textContent = message;
+
+        const form = document.getElementById('loginForm');
+        form.insertBefore(errorDiv, form.firstChild);
+
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 3000);
+    }
+}
+
+const loginManager = new LoginManager();
