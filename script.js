@@ -1877,3 +1877,302 @@ function ajouterBoutonsExport() {
     `;
     return exportButtons;
 }
+// Système de pointage
+class PointageManager {
+    constructor() {
+        this.pointages = [];
+        this.currentPointage = null;
+    }
+
+    // Pointer l'entrée
+    pointerEntree() {
+        if (this.currentPointage) {
+            return { success: false, message: 'Vous êtes déjà pointé' };
+        }
+
+        this.currentPointage = {
+            id: Date.now(),
+            date: new Date().toISOString().split('T')[0],
+            heureEntree: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            heureSortie: null,
+            duree: null,
+            status: 'en_cours'
+        };
+
+        this.pointages.push(this.currentPointage);
+        this.sauvegarderPointages();
+        return { success: true, pointage: this.currentPointage };
+    }
+
+    // Pointer la sortie
+    pointerSortie() {
+        if (!this.currentPointage) {
+            return { success: false, message: 'Aucun pointage en cours' };
+        }
+
+        this.currentPointage.heureSortie = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        this.currentPointage.duree = this.calculerDuree(
+            this.currentPointage.heureEntree,
+            this.currentPointage.heureSortie
+        );
+        this.currentPointage.status = 'termine';
+        this.currentPointage = null;
+
+        this.sauvegarderPointages();
+        return { success: true };
+    }
+
+    // Calculer la durée entre deux heures
+    calculerDuree(debut, fin) {
+        const [heureDebut, minDebut] = debut.split(':').map(Number);
+        const [heureFin, minFin] = fin.split(':').map(Number);
+        
+        let heures = heureFin - heureDebut;
+        let minutes = minFin - minDebut;
+        
+        if (minutes < 0) {
+            heures--;
+            minutes += 60;
+        }
+        
+        return `${heures}h${minutes.toString().padStart(2, '0')}`;
+    }
+
+    // Obtenir les statistiques
+    getStatistiques() {
+        const maintenant = new Date();
+        const debutMois = new Date(maintenant.getFullYear(), maintenant.getMonth(), 1);
+        const finMois = new Date(maintenant.getFullYear(), maintenant.getMonth() + 1, 0);
+
+        const pointagesMois = this.pointages.filter(p => {
+            const date = new Date(p.date);
+            return date >= debutMois && date <= finMois;
+        });
+
+        return {
+            totalJours: pointagesMois.length,
+            heuresMois: this.calculerHeuresMois(pointagesMois),
+            moyenneJour: this.calculerMoyenneJour(pointagesMois),
+            retards: this.compterRetards(pointagesMois),
+            departsAnticipes: this.compterDepartsAnticipes(pointagesMois)
+        };
+    }
+
+    // Sauvegarder dans localStorage
+    sauvegarderPointages() {
+        localStorage.setItem('pointages', JSON.stringify(this.pointages));
+    }
+
+    // Charger depuis localStorage
+    chargerPointages() {
+        const saved = localStorage.getItem('pointages');
+        if (saved) {
+            this.pointages = JSON.parse(saved);
+            // Retrouver le pointage en cours s'il existe
+            this.currentPointage = this.pointages.find(p => p.status === 'en_cours');
+        }
+    }
+}
+
+// Gestionnaire de statistiques
+class StatistiquesManager {
+    constructor(pointageManager, prestationManager) {
+        this.pointageManager = pointageManager;
+        this.prestationManager = prestationManager;
+    }
+
+    // Générer les données pour les graphiques
+    genererDonneesGraphiques() {
+        return {
+            heuresParJour: this.calculerHeuresParJour(),
+            prestationsParType: this.calculerPrestationsParType(),
+            revenusParMois: this.calculerRevenusParMois()
+        };
+    }
+
+    // Calculer les heures travaillées par jour
+    calculerHeuresParJour() {
+        const derniersSeptJours = [...Array(7)].map((_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            return date.toISOString().split('T')[0];
+        }).reverse();
+
+        return {
+            labels: derniersSeptJours,
+            data: derniersSeptJours.map(date => {
+                const pointage = this.pointageManager.pointages.find(p => p.date === date);
+                return pointage ? this.convertirDureeEnHeures(pointage.duree) : 0;
+            })
+        };
+    }
+
+    // Calculer la répartition des prestations par type
+    calculerPrestationsParType() {
+        const prestations = this.prestationManager.prestations;
+        const types = ['standard', 'urgence', 'weekend'];
+        
+        return {
+            labels: types,
+            data: types.map(type => 
+                prestations.filter(p => p.type === type).length
+            )
+        };
+    }
+
+    // Calculer les revenus par mois
+    calculerRevenusParMois() {
+        const derniersMois = [...Array(6)].map((_, i) => {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            return date.toLocaleDateString('fr-FR', { month: 'long' });
+        }).reverse();
+
+        return {
+            labels: derniersMois,
+            data: derniersMois.map(mois => 
+                this.calculerRevenuMois(mois)
+            )
+        };
+    }
+
+    // Convertir une durée en heures décimales
+    convertirDureeEnHeures(duree) {
+        const [heures, minutes] = duree.split('h').map(Number);
+        return heures + (minutes / 60);
+    }
+
+    // Calculer le revenu pour un mois donné
+    calculerRevenuMois(mois) {
+        // Simulation - À remplacer par le vrai calcul
+        return Math.floor(Math.random() * 5000) + 1000;
+    }
+}
+
+// Interface utilisateur pour le pointage
+function afficherPointage() {
+    const container = document.querySelector('.dashboard-content');
+    container.innerHTML = `
+        <div class="section-header">
+            <h1>Pointage</h1>
+            <div class="current-time" id="currentTime"></div>
+        </div>
+
+        <div class="pointage-container">
+            <div class="pointage-card">
+                <div class="pointage-status" id="pointageStatus">
+                    Non pointé
+                </div>
+                <div class="pointage-actions">
+                    <button class="btn-success" id="btnEntree">Pointer l'entrée</button>
+                    <button class="btn-warning" id="btnSortie" disabled>Pointer la sortie</button>
+                </div>
+                <div class="pointage-info" id="pointageInfo"></div>
+            </div>
+
+            <div class="historique-pointage">
+                <h2>Historique des pointages</h2>
+                <div class="pointage-table-container">
+                    <table class="pointage-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Entrée</th>
+                                <th>Sortie</th>
+                                <th>Durée</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pointageTableBody">
+                            <!-- Les pointages seront ajoutés ici -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="statistiques-container">
+            <h2>Statistiques</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <canvas id="heuresChart"></canvas>
+                </div>
+                <div class="stat-card">
+                    <canvas id="prestationsChart"></canvas>
+                </div>
+                <div class="stat-card">
+                    <canvas id="revenusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    `;
+
+    initPointageEvents();
+    initGraphiques();
+}
+
+// Initialiser les événements de pointage
+function initPointageEvents() {
+    const btnEntree = document.getElementById('btnEntree');
+    const btnSortie = document.getElementById('btnSortie');
+
+    btnEntree.addEventListener('click', () => {
+        const result = pointageManager.pointerEntree();
+        if (result.success) {
+            updatePointageUI(true);
+        }
+    });
+
+    btnSortie.addEventListener('click', () => {
+        const result = pointageManager.pointerSortie();
+        if (result.success) {
+            updatePointageUI(false);
+        }
+    });
+
+    // Mettre à jour l'heure en temps réel
+    setInterval(updateCurrentTime, 1000);
+}
+
+// Initialiser les graphiques
+function initGraphiques() {
+    const stats = statistiquesManager.genererDonneesGraphiques();
+    
+    // Graphique des heures
+    new Chart(document.getElementById('heuresChart'), {
+        type: 'line',
+        data: {
+            labels: stats.heuresParJour.labels,
+            datasets: [{
+                label: 'Heures travaillées',
+                data: stats.heuresParJour.data,
+                borderColor: '#4CAF50'
+            }]
+        }
+    });
+
+    // Graphique des prestations
+    new Chart(document.getElementById('prestationsChart'), {
+        type: 'doughnut',
+        data: {
+            labels: stats.prestationsParType.labels,
+            datasets: [{
+                data: stats.prestationsParType.data,
+                backgroundColor: ['#2196F3', '#F44336', '#FFC107']
+            }]
+        }
+    });
+
+    // Graphique des revenus
+    new Chart(document.getElementById('revenusChart'), {
+        type: 'bar',
+        data: {
+            labels: stats.revenusParMois.labels,
+            datasets: [{
+                label: 'Revenus mensuels',
+                data: stats.revenusParMois.data,
+                backgroundColor: '#9C27B0'
+            }]
+        }
+    });
+}
