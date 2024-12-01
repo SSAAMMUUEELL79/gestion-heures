@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AppliPay - Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Ajout de Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <script>
-        // Vérifier si l'utilisateur est connecté
         if (!localStorage.getItem('isLoggedIn')) {
             window.location.href = 'login.html';
         }
@@ -22,31 +23,31 @@
         </div>
 
         <ul class="sidebar-menu">
-            <li class="active">
+            <li class="active" data-page="dashboard">
                 <a href="#dashboard">
                     <span class="icon">📊</span>
                     <span>Dashboard</span>
                 </a>
             </li>
-            <li>
+            <li data-page="prestations">
                 <a href="#prestations">
                     <span class="icon">📝</span>
                     <span>Prestations</span>
                 </a>
             </li>
-            <li>
+            <li data-page="pointage">
                 <a href="#pointage">
                     <span class="icon">⏰</span>
                     <span>Pointage</span>
                 </a>
             </li>
-            <li>
+            <li data-page="statistiques">
                 <a href="#statistiques">
                     <span class="icon">📈</span>
                     <span>Statistiques</span>
                 </a>
             </li>
-            <li>
+            <li data-page="parametres">
                 <a href="#parametres">
                     <span class="icon">⚙️</span>
                     <span>Paramètres</span>
@@ -55,7 +56,7 @@
         </ul>
 
         <div class="sidebar-footer">
-            <button onclick="logout()" class="btn-logout">
+            <button onclick="app.logout()" class="btn-logout">
                 <span class="icon">🚪</span>
                 <span>Déconnexion</span>
             </button>
@@ -64,6 +65,7 @@
 
     <!-- Main Content -->
     <div class="main-content">
+        <!-- En-tête -->
         <div class="dashboard-header">
             <h1>Tableau de bord</h1>
             <div class="user-info">
@@ -71,43 +73,10 @@
                 <img src="icon.png" alt="Profile" class="profile-pic">
             </div>
         </div>
-
+                <!-- Contenu principal -->
         <div class="dashboard-content">
-            <!-- Section Prestations -->
-            <div class="section prestations-section">
-                <div class="section-header">
-                    <h2>Prestations</h2>
-                    <button class="btn-primary" onclick="showAddPrestationForm()">
-                        Nouvelle prestation
-                    </button>
-                </div>
-
-                <div class="prestations-list" id="prestationsList">
-                    <!-- Les prestations seront ajoutées ici dynamiquement -->
-                </div>
-            </div>
-
-            <!-- Section Pointage -->
-            <div class="section pointage-section">
-                <div class="section-header">
-                    <h2>Pointage du jour</h2>
-                    <div class="current-time" id="currentTime"></div>
-                </div>
-
-                <div class="pointage-actions">
-                    <button class="btn-success" id="btnPointage" onclick="togglePointage()">
-                        Pointer l'entrée
-                    </button>
-                </div>
-
-                <div class="pointage-status" id="pointageStatus">
-                    Non pointé
-                </div>
-            </div>
-
-            <!-- Section Statistiques -->
-            <div class="section stats-section">
-                <h2>Statistiques</h2>
+            <!-- Section Dashboard -->
+            <div class="page-section active" id="dashboard-page">
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h3>Prestations du mois</h3>
@@ -122,11 +91,111 @@
                         <div class="stat-value" id="revenusMois">0 €</div>
                     </div>
                 </div>
+
+                <div class="recent-prestations">
+                    <h2>Prestations récentes</h2>
+                    <div id="prestationsList"></div>
+                </div>
+            </div>
+
+            <!-- Section Pointage -->
+            <div class="page-section" id="pointage-page">
+                <div class="pointage-container">
+                    <div class="current-time" id="currentTime"></div>
+                    <div class="pointage-status" id="pointageStatus">Non pointé</div>
+                    <button class="btn-success" id="btnPointage" onclick="app.togglePointage()">
+                        Pointer l'entrée
+                    </button>
+                    <div class="pointage-history">
+                        <h3>Historique des pointages</h3>
+                        <div id="pointagesList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Statistiques -->
+            <div class="page-section" id="statistiques-page">
+                <div class="stats-container">
+                    <div class="chart-container">
+                        <canvas id="prestationsChart"></canvas>
+                    </div>
+                    <div id="tableauRecap" class="recap-container"></div>
+                    <div class="stats-details">
+                        <h3>Détails des prestations</h3>
+                        <div class="stats-grid">
+                            <div class="stat-detail">
+                                <h4>Standard</h4>
+                                <div id="statsStandard"></div>
+                            </div>
+                            <div class="stat-detail">
+                                <h4>Urgence</h4>
+                                <div id="statsUrgence"></div>
+                            </div>
+                            <div class="stat-detail">
+                                <h4>Weekend</h4>
+                                <div id="statsWeekend"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Paramètres -->
+            <div class="page-section" id="parametres-page">
+                <form id="settingsForm" class="settings-form">
+                    <div class="settings-section">
+                        <h3>Tarifs horaires</h3>
+                        <div class="form-group">
+                            <label for="tarifStandard">Standard (€/h)</label>
+                            <input type="number" id="tarifStandard" min="0" step="0.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tarifUrgence">Urgence (€/h)</label>
+                            <input type="number" id="tarifUrgence" min="0" step="0.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tarifWeekend">Weekend (€/h)</label>
+                            <input type="number" id="tarifWeekend" min="0" step="0.5" required>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Horaires de travail</h3>
+                        <div class="form-group">
+                            <label for="horaireDebut">Heure de début</label>
+                            <input type="time" id="horaireDebut" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="horaireFin">Heure de fin</label>
+                            <input type="time" id="horaireFin" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pauseDejeuner">Pause déjeuner (minutes)</label>
+                            <input type="number" id="pauseDejeuner" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Préférences</h3>
+                        <div class="form-group">
+                            <label for="notifications">Activer les notifications</label>
+                            <input type="checkbox" id="notifications">
+                        </div>
+                        <div class="form-group">
+                            <label for="theme">Thème</label>
+                            <select id="theme">
+                                <option value="light">Clair</option>
+                                <option value="dark">Sombre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Sauvegarder</button>
+                </form>
             </div>
         </div>
     </div>
-
-    <!-- Modal Ajout Prestation -->
+        <!-- Modal Ajout Prestation -->
     <div class="modal" id="addPrestationModal">
         <div class="modal-content">
             <h2>Nouvelle prestation</h2>
@@ -156,7 +225,7 @@
                     <textarea id="description" required></textarea>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn-secondary" onclick="closeModal()">
+                    <button type="button" class="btn-secondary" onclick="app.closeModal()">
                         Annuler
                     </button>
                     <button type="submit" class="btn-primary">
@@ -166,6 +235,21 @@
             </form>
         </div>
     </div>
+
+    <!-- Modal Confirmation -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <h2>Confirmation</h2>
+            <p id="confirmationMessage"></p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="app.closeModal()">Annuler</button>
+                <button class="btn-primary" onclick="app.confirmAction()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notificationsContainer" class="notifications-container"></div>
 
     <!-- Scripts -->
     <script src="script.js"></script>
